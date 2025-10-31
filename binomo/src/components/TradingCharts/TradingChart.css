@@ -1,0 +1,51 @@
+/* Chart Container */
+.chart-card {
+  background: rgba(7, 27, 52);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.chart-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #fff;
+}
+
+.tradingview-widget-container {
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(7, 27, 52);
+  min-height: 400px;
+}
+
+.chart-loading {
+  height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  font-size: 16px;
+}
+
+.chart-footer {
+  margin-top: 12px;
+  text-align: center;
+  font-size: 12px;
+  color: #64748b;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .trading-platform {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  
+}

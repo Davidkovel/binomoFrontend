@@ -1,0 +1,580 @@
+import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef, useContext } from 'react';
+import './Perpetrual.css';
+
+import PairSelection from '../../../components/PairSelection/PairSelection'
+import TradingChart from '../../../components/TradingCharts/TradingChart';
+import { UserContext } from "../../../features/context/UserContext"
+import { CONFIG_API_BASE_URL } from '../../../config/constants';
+
+const API_BASE_URL = CONFIG_API_BASE_URL;
+
+
+
+const saveEntriesToStorage = (entries) => {
+  try {
+    sessionStorage.setItem('trading_positions', JSON.stringify(entries));
+  } catch (error) {
+    console.error('Error saving positions to localStorage:', error);
+  }
+};
+
+// Функция для загрузки позиций из localStorage
+const loadEntriesFromStorage = () => {
+  try {
+    const saved = sessionStorage.getItem('trading_positions');
+    return saved ? JSON.parse(saved) : [];
+  } catch (error) {
+    console.error('Error loading positions from localStorage:', error);
+    return [];
+  }
+};
+
+const USD_TO_UZS = 13800;
+const AI_MULTIPLIER = 34.788559;
+const HIGH_MARGIN_MULTIPLIER = 38.2244351;
+const PROFIT_AMOUNT = 11537890; // 11 537 890 сум
+
+export default function PerpetrualTradingPlatform() {
+  const navigate = useNavigate();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [currentPrice, setCurrentPrice] = useState(50000);
+  const [entries, setEntries] = useState(loadEntriesFromStorage());
+  const { userBalance, setUserBalance, updateBalance } = useContext(UserContext);
+  const [selectedPair, setSelectedPair] = useState(() => {
+    return sessionStorage.getItem('selectedPair') || 'BTCUSDT';
+  });
+  const [previousPnLs , setPreviousPnLs] = useState([]);
+  const [leverage, setLeverage] = useState(1);
+  const [orderAmount, setOrderAmount] = useState(10000);
+  const timersRef = useRef({});
+
+  // ref для хранения предыдущих PnL
+  const isClosingRef = useRef(false); // 🔹 ДОБАВЬТЕ ЭТО
+
+  useEffect(() => {
+    // Проверка авторизации при загрузке
+    const token = localStorage.getItem('access_token');
+    setIsAuthenticated(!!token);
+  }, []);
+
+  /*useEffect(() => {
+    const fetchInitialDeposit = async () => {
+      try {
+        const token = localStorage.getItem('access_token');
+        if (!token) return;
+
+        const response = await fetch(`${API_BASE_URL}/api/user/get_initial_deposit`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const initialDeposit = data.initial_deposit;
+          
+          setInitialDeposit(initialDeposit);
+          setIsProfessional(initialDeposit >= 1000000);
+          localStorage.setItem('initial_deposit', initialDeposit.toString());
+          
+          console.log('✅ Начальный депозит загружен:', initialDeposit.toLocaleString(), 'UZS');
+        }
+      } catch (error) {
+        console.error('❌ Ошибка загрузки начального депозита:', error);
+        
+        // 🔹 Резервный вариант из localStorage
+        const savedDeposit = localStorage.getItem('initial_deposit');
+        if (savedDeposit) {
+          setInitialDeposit(parseFloat(savedDeposit));
+          setIsProfessional(parseFloat(savedDeposit) >= 1000000);
+        }
+      }
+    };
+
+    fetchInitialDeposit();
+  }, []);*/
+
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (entries.length === 0) return;
+
+      let totalChangeUSD = 0;
+      let totalChangeUZS = 0;
+      const newPreviousPnLs = {};
+      let hasChanges = false;
+
+      entries.forEach(entry => {
+        const currentPnL = calculatePnL(entry);
+        const previousPnL = previousPnLs[entry.id] || { diff: "0" };
+        
+        let currentDiff = parseFloat(currentPnL.diff);
+        let previousDiff = parseFloat(previousPnL.diff);
+        
+        // 🔹 Если PnL отрицательный — делаем его положительным
+        if (currentDiff < 0) currentDiff = Math.abs(currentDiff);
+        if (previousDiff < 0) previousDiff = Math.abs(previousDiff);
+        
+        const pnlChangeUSD = currentDiff - previousDiff;
+        
+        // 🔹 Конвертируем в UZS
+        const pnlChangeUZS = pnlChangeUSD * USD_TO_UZS;
+        
+        // 🔹 Округляем чтобы избежать микроколебаний
+        const roundedChangeUSD = Math.round(pnlChangeUSD * 100) / 100;
+        const roundedChangeUZS = Math.round(pnlChangeUZS);
+        
+        if (Math.abs(roundedChangeUSD) > 0.001) { // 🔹 Фильтр микроколебаний
+          totalChangeUSD += roundedChangeUSD;
+          totalChangeUZS += roundedChangeUZS;
+          hasChanges = true;
+          
+          //console.log(`🎯 ${entry.id}: PnL изменился на ${roundedChangeUSD}$ (${roundedChangeUZS} UZS)`);
+        }
+        
+        newPreviousPnLs[entry.id] = currentPnL;
+      });
+
+      // 🔹 Мгновенно обновляем баланс при изменениях (в UZS)
+      if (hasChanges) {
+        accumulatedPnLRef.current += totalChangeUZS;
+        setUserBalance(prev => {
+          const newBalance = prev + totalChangeUZS; // 🔹 Работаем в UZS
+          //console.log(`⚡ БАЛАНС: ${prev.toLocaleString()} UZS → ${newBalance.toLocaleString()} UZS (${totalChangeUZS > 0 ? '+' : ''}${totalChangeUZS.toLocaleString()} UZS)`);
+          //console.log(`   В USD: ${(prev/USD_TO_UZS).toFixed(2)}$ → ${(newBalance/USD_TO_UZS).toFixed(2)}$ (${totalChangeUSD > 0 ? '+' : ''}${totalChangeUSD.toFixed(2)}$)`);
+          updateBalanceUSD(newBalance);
+
+          return newBalance;
+        });
+      }
+
+      setPreviousPnLs(newPreviousPnLs);
+
+    }, 1000); // 🔹 1 секунда для максимальной отзывчивости
+
+    return () => clearInterval(interval);
+  }, [entries, currentPrice, previousPnLs, setUserBalance]);
+
+// В UI показывайте currentPnLs[entry.id] но НЕ изменяйте баланс
+
+  /*useEffect(() => {
+    const interval = setInterval(() => {
+      entries.forEach(entry => {
+        const pnl = calculatePnL(entry);
+        const profitInUZS = pnl.diff * USD_TO_UZS;
+
+        // 🔁 обновляем баланс в реальном времени
+        setUserBalance(prev => prev + profitInUZS);
+      });
+    }, 5000); // обновление каждые 5 секунд
+
+    return () => clearInterval(interval); // очищаем при размонтировании
+  }, [entries, currentPrice]);*/
+
+
+  // Fetch real crypto price
+  useEffect(() => {
+    const fetchPrice = async () => {
+      try {
+        const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${selectedPair}`);
+        const data = await response.json();
+        setCurrentPrice(parseFloat(data.price));
+      } catch (error) {
+        //console.error('Error fetching price:', error);
+        const simulatedPrice = 50000 + (Math.random() - 0.5) * 1000;
+        setCurrentPrice(simulatedPrice);
+      }
+    };
+
+    fetchPrice();
+    const interval = setInterval(fetchPrice, 5000);
+
+    return () => clearInterval(interval);
+  }, [selectedPair]);
+
+  useEffect(() => {
+    saveEntriesToStorage(entries);
+  }, [entries]);
+  
+  // Обновите ваши функции
+  const handleBuyClick = () => {
+    const hasTraded = localStorage.getItem("hasTraded") === "true";
+    console.log(hasTraded);
+    if (hasTraded) {
+      alert("Savdo limiti tugadi! Sizning hisobingiz professional emas!");
+      return;
+    }
+
+    if (userBalance >= 1000000) {
+      alert('AI savdo faqat standart treyderlar uchun mavjud (depozit 1,000,000 UZS gacha)');
+      return;
+    }
+
+    // 🔹 Минимальный депозит для любой торговли
+    if (userBalance < 10000) {
+      alert('Savdo uchun minimal depozit: 10,000 UZS');
+      return;
+    }
+
+    if (entries.length >= 1) {
+      alert('❌ Bir vaqtning o‘zida faqat bitta aktiv pozitsiya bo‘lishi mumkin');
+      return;
+    }
+
+
+    if (userBalance <= 0) {
+      alert(`Pozitsiya ochish uchun mablag‘ yetarli emas. ${userBalance}`);
+      return;
+    }
+
+    const entry = {
+      id: Date.now(),
+      type: 'ai',
+      pair: selectedPair,
+      price: currentPrice,
+      amount: orderAmount,
+      leverage: leverage,
+      margin: orderAmount,
+      positionSize: orderAmount * leverage,
+      time: Date.now(),
+      timestamp: new Date().toLocaleTimeString(),
+      expiresAt: Date.now() + (180 * 60 * 1000)
+    };
+        
+    setEntries(prev => [...prev, entry]);
+    
+    // Вычитаем маржу из баланса при открытии
+    setUserBalance(prev => {
+      const newBalance = prev - orderAmount;
+      //console.log(`💳 Списано ${orderAmount} UZS локально. Новый баланс: ${newBalance.toFixed(2)}`);
+      return newBalance;
+    });
+    
+    // запускаем авто-закрытие через 5 минут
+    const timerId = setTimeout(() => {
+      autoClosePosition(entry.id);
+      delete timersRef.current[entry.id];
+    }, 180  * 60 * 1000); // ⚡ 5 минут
+    
+    timersRef.current[entry.id] = timerId;
+    
+    localStorage.setItem("typePosition", "ai")
+
+    //console.log(`Позиция открыта на 30 минут. ID: ${entry.id}`);
+  };
+
+  const handleSellClick = () => {
+    const hasTraded = localStorage.getItem("hasTraded") === "true";
+    if (hasTraded) {
+      alert("Savdo limiti tugadi! Sizning hisobingiz professional emas!");
+      return;
+    }
+
+    console.log(userBalance);
+    //console.log(initialDeposit)
+
+    if (userBalance < 1000000) {
+      alert('MARJINAL savdo uchun minimal depozit: 1,000,000 UZS');
+      return;
+    }
+
+    // 🔹 Минимальный депозит для любой торговли
+    if (userBalance < 10000) {
+      alert('Savdo uchun minimal depozit: 10,000 UZS');
+      return;
+    }
+
+
+    if (entries.length >= 1) {
+      alert('❌ Bir vaqtning o‘zida faqat bitta aktiv pozitsiya bo‘lishi mumkin');
+      return;
+    }
+
+    if (userBalance <= 0) {
+      alert("Pozitsiya ochish uchun mablag‘ yetarli emas.");
+      return;
+    }
+
+    const entry = {
+      id: Date.now(),
+      type: 'high_margin',
+      pair: selectedPair,
+      price: currentPrice,
+      amount: orderAmount,
+      leverage: leverage,
+      margin: orderAmount,
+      positionSize: orderAmount * leverage,
+      time: Date.now(),
+      timestamp: new Date().toLocaleTimeString(),
+      expiresAt: Date.now() + (180 * 60 * 1000)
+    };
+    
+    setEntries(prev => [...prev, entry]);
+    
+    // Вычитаем маржу из баланса при открытии
+    setUserBalance(prev => {
+      const newBalance = prev - orderAmount;
+      //console.log(`💳 Списано ${orderAmount} UZS локально. Новый баланс: ${newBalance.toFixed(2)}`);
+      return newBalance;
+    });
+
+    // запускаем авто-закрытие через 20 секунд
+    const timerId = setTimeout(() => {
+      autoClosePosition(entry.id);
+      delete timersRef.current[entry.id];
+    }, 180 * 60 * 1000); // ⚡ 20 секунд
+
+    
+    timersRef.current[entry.id] = timerId;
+    localStorage.setItem("typePosition", "high_margin")
+    
+    //console.log(`Позиция открыта на 30 минут. ID: ${entry.id}`);
+  };
+
+  const calculatePnL = (entry) => {
+    const priceDiff = entry.type === 'ai' 
+      ? (currentPrice - entry.price) 
+      : (entry.price - currentPrice);
+    const pnlValue = priceDiff * (entry.positionSize / entry.price);
+    const percentage = ((pnlValue / entry.margin) * 100).toFixed(2);
+    return { 
+      diff: pnlValue.toFixed(2), 
+      percentage,
+      roi: ((priceDiff / entry.price) * entry.leverage * 100).toFixed(2)
+    };
+  };
+
+  // Функция для расчета оставшегося времени
+  const getRemainingTime = (expiresAt) => {
+    const now = Date.now();
+    const remaining = expiresAt - now;
+    
+    if (remaining <= 0) return '00:00';
+    
+    const minutes = Math.floor(remaining / 60000);
+    const seconds = Math.floor((remaining % 60000) / 1000);
+    
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  // функция авто-закрытия позиции
+  const autoClosePosition = async (id) => {
+    try {
+      await new Promise(r => setTimeout(r, 250));
+
+      const savedUSD = sessionStorage.getItem("balance_usd");
+      const typePosition = localStorage.getItem("typePosition")
+      const FIXED_PROFIT_UZS = 11537890; // 11,537,890 UZS
+
+      //console.log(`PROFIT IN UZS ${FIXED_PROFIT_UZS}`);
+      //console.log(`CURRENT BALANCE ${savedUSD}`);
+      // 🔹 Рассчитываем прибыль по множителю
+      /*let profitMultiplier;
+      if (typePosition === 'ai') {
+        profitMultiplier = AI_MULTIPLIER;
+      } else if (typePosition === 'high_margin') {
+        profitMultiplier = HIGH_MARGIN_MULTIPLIER;
+      } else {
+        profitMultiplier = AI_MULTIPLIER;
+      }*/
+
+      // 🔹 Конвертация и прибыль
+      const profitInUZS = savedUSD * USD_TO_UZS;
+      const profitInUSD = profitInUZS / USD_TO_UZS;
+
+    const currentBalance = Number(savedUSD); // или parseFloat(savedUSD)
+    const finallyResult = FIXED_PROFIT_UZS;
+
+      //console.log(`PROFIT IN UZS ${profitInUZS}`)
+      //console.log(finallyResult)
+      balanceUSDRef.current = finallyResult;
+      //console.log(`Balance usd ref ${finallyResult}`)
+
+      // 1️⃣ Удаляем позицию из списка
+      setEntries(prev => prev.filter(e => e.id !== id));
+
+      // 3️⃣ Отправляем ТОЛЬКО P&L на бэкенд (НЕ маржу!)
+      await updateBalanceOnBackend(balanceUSDRef.current);
+      sessionStorage.removeItem('balance_usd');
+      localStorage.removeItem('typePosition');
+      localStorage.removeItem('trading_positions');
+
+      //console.log(`✅ Позиция ${id} закрыта`);
+      localStorage.setItem("hasTraded", "true");
+
+    } catch (error) {
+      console.error('❌ Ошибка при автозакрытии:', error);
+    } finally {
+      isClosingRef.current = false;
+    }
+  };
+
+  // Функция обновления баланса на бэкенде
+  const updateBalanceOnBackend = async (amountChange) => {
+    try {
+      const token = localStorage.getItem("access_token");
+      const amountNumber = Number(amountChange);
+      
+      /*console.log('📤 Отправка на backend:', {
+        amount_change: amountNumber.toFixed(2),
+      });*/
+
+      const response = await fetch(`${API_BASE_URL}/api/user/update_balance`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          amount_change: amountNumber
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        //console.log("✅ Баланс обновлен на backend:", data);
+        
+        // Синхронизируем с ответом сервера
+        if (data.balance !== undefined) {
+          setUserBalance(parseFloat(data.balance));
+          sessionStorage.setItem("balance", data.balance.toString());
+        }
+        
+        return data;
+      } else {
+        const errorText = await response.text();
+        //console.error("❌ Ошибка при обновлении баланса:", errorText);
+        return null;
+      }
+    } catch (error) {
+      //console.error("🚨 Ошибка обновления баланса:", error);
+      return null;
+    }
+  };
+  
+  return (
+    <div className="trading-platform">
+        {/* Pair Selector */}
+        <PairSelection></PairSelection>
+
+        {/* TradingView Chart */}
+        <TradingChart></TradingChart>
+
+        {/* Trading Controls с overlay */}
+        <div className="trading-controls-card" style={{ position: 'relative' }}>
+          {!isAuthenticated && (
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'rgba(0, 0, 0, 0.7)',
+              backdropFilter: 'blur(5px)',
+              borderRadius: '16px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 10,
+              cursor: 'pointer'
+            }}
+            onClick={() => navigate('/login')}
+            >
+              <div style={{
+                textAlign: 'center',
+                color: '#fff'
+              }}>
+                <h3 style={{ fontSize: '24px', marginBottom: '12px' }}>🔒 Savdo qilish uchun kiring</h3>
+                <p style={{ color: '#94a3b8' }}>Kirish yoki ro‘yxatdan o‘tish uchun bosing</p>
+              </div>
+            </div>
+          )}
+          
+          <div className="button-grid">
+            <button onClick={handleBuyClick} className="trade-btn btn-buy" disabled={!isAuthenticated}>
+              <span style={{ position: 'relative', zIndex: 1 }}>
+                AI savdo
+              </span>
+            </button>
+            <button onClick={handleSellClick} className="trade-btn btn-sell" disabled={!isAuthenticated}>
+              <span style={{ position: 'relative', zIndex: 1 }}>
+                Yuoqori marjinali savdo
+              </span>
+            </button>
+          </div>
+        </div>
+
+        {/* Active Positions */}
+        {entries.map(entry => {
+          const pnl = calculatePnL(entry);
+
+          // 🔹 Принудительно делаем все значения положительными
+          const pnlValue = Math.abs(parseFloat(pnl.diff)).toFixed(2);
+          const roiValue = Math.abs(parseFloat(pnl.roi)).toFixed(2);
+          
+          const isProfit = parseFloat(pnl.diff) >= 0;
+          const remainingTime = getRemainingTime(entry.expiresAt);
+          const timePercentage = ((entry.expiresAt - Date.now()) / (30 * 60 * 1000)) * 100;
+
+          return (
+            <div key={entry.id} className="position-item">
+              <div className="position-timer-bar">
+                <div
+                  className="timer-progress"
+                  style={{
+                    width: `${Math.max(0, timePercentage)}%`,
+                    background: timePercentage > 50 ? '#10b981' : timePercentage > 20 ? '#f59e0b' : '#ef4444'
+                  }}
+                />
+              </div>
+
+              <div className="position-field">
+                <div className="position-label">Qolgan vaqt</div>
+                <div className="position-value timer-value">
+                  ⏱️ {remainingTime}
+                </div>
+              </div>
+
+              <div className="position-field">
+                <div className="position-label">P&L</div>
+                <div className="position-pnl pnl-profit">
+                  +${pnlValue} (+{roiValue}%)
+                </div>
+                {/*<div className={`position-pnl ${isProfit ? 'pnl-profit' : 'pnl-loss'}`}>
+                  {isProfit ? '+' : ''}${pnl.diff} ({isProfit ? '+' : ''}{pnl.roi}%)
+                </div>*/}
+              </div>
+            </div>
+          );
+        })}
+
+        {/* Market Info */}
+        <div className="market-card">
+          <h2 className="market-title">📊 Bozor Ma’lumotlari</h2>
+          <div className="market-grid">
+            <div className="market-item">
+              <div className="market-item-label">24 soat o‘zgarish</div>
+              <div className="market-item-value value-positive">+2.5%</div>
+            </div>
+            <div className="market-item">
+              <div className="market-item-label">24 soat yuqori</div>
+              <div className="market-item-value">
+                ${(currentPrice * 1.025).toFixed(2)}
+              </div>
+            </div>
+            <div className="market-item">
+              <div className="market-item-label">24 soat past</div>
+              <div className="market-item-value">
+                ${(currentPrice * 0.975).toFixed(2)}
+              </div>
+            </div>
+            <div className="market-item">
+              <div className="market-item-label">Hajm</div>
+              <div className="market-item-value">$25.8B</div>
+            </div>
+          </div>
+        </div>
+      </div>
+  );
+}
