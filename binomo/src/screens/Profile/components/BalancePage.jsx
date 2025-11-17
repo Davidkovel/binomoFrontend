@@ -28,7 +28,7 @@ export default function BalancePage() {
             }
 
             try {
-                const profileResponse = await fetch(`${API_BASE_URL}/api/user/profile/me`, {
+                const profileResponse = await fetch(`${API_BASE_URL}/api/Auth/me`, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                     },

@@ -7,7 +7,6 @@ export const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
   const [userBalance, setUserBalance] = useState(() => {
-    // Инициализация из sessionStorage
     const saved = sessionStorage.getItem("balance");
     return saved ? parseFloat(saved) : 0;
   });
@@ -21,11 +20,9 @@ export const UserProvider = ({ children }) => {
     }
   }, []);
 
-  // Функция для обновления баланса с сохранением в sessionStorage
   const updateBalance = (newBalance) => {
     const balance = typeof newBalance === 'function' ? newBalance(userBalance) : newBalance;
     
-    // Обновляем локально
     setUserBalance(balance);
     sessionStorage.setItem("balance", balance.toString());
     //console.log('💰 Context: Баланс обновлен локально:', balance.toFixed(2));
@@ -69,8 +66,8 @@ export const UserProvider = ({ children }) => {
     <UserContext.Provider 
       value={{ 
         userBalance, 
-        setUserBalance, // 🔹 Оставляем setUserBalance для прямого использования
-        updateBalance,  // 🔹 Добавляем updateBalance в контекст
+        setUserBalance,
+        updateBalance,
         isAuthenticated, 
         setIsAuthenticated
       }}

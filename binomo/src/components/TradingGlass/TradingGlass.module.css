@@ -1,0 +1,181 @@
+/* Main Container */
+.orderBookContainer {
+  background-color: rgb(20, 24, 27);
+  border-radius: 16px;
+}
+
+/* Order Book Section */
+.orderBookSection {
+  flex: 1;
+  background: rgb(20, 24, 27);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  padding: 20px;
+  min-width: 350px;
+}
+
+.orderBookHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.spread{
+  padding: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+}
+
+.orderBookHeader h3 {
+  padding: 10px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+}
+
+.orderBookTabs {
+  display: flex;
+  gap: 8px;
+}
+
+.tabActive {
+  color: #10b981;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.orderBookTable {
+  font-size: 13px;
+}
+
+.tableHeader {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  padding: 8px 12px;
+  color: #94a3b8;
+  font-size: 12px;
+  font-weight: 500;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+  margin-bottom: 8px;
+}
+
+.tableHeader span {
+  text-align: right;
+}
+
+.tableHeader span:first-child {
+  text-align: left;
+}
+
+/* Order Rows */
+.asksSection,
+.bidsSection {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.asksSection::-webkit-scrollbar,
+.bidsSection::-webkit-scrollbar {
+  width: 4px;
+}
+
+.asksSection::-webkit-scrollbar-track,
+.bidsSection::-webkit-scrollbar-track {
+  background: rgba(148, 163, 184, 0.05);
+}
+
+.asksSection::-webkit-scrollbar-thumb,
+.bidsSection::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.2);
+  border-radius: 2px;
+}
+
+.orderRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  padding: 4px 12px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.orderRow:hover {
+  background: rgba(148, 163, 184, 0.05);
+}
+
+.depthBar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  transition: width 0.3s ease;
+}
+
+.orderRow span {
+  position: relative;
+  z-index: 1;
+  text-align: right;
+}
+
+.orderRow span:first-child {
+  text-align: left;
+}
+
+.priceAsk {
+  color: #ef4444;
+  font-weight: 500;
+}
+
+.priceBid {
+  color: #10b981;
+  font-weight: 500;
+}
+
+.amount {
+  color: #cbd5e1;
+}
+
+.total {
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+/* Current Price */
+.currentPriceRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 12px;
+  margin: 12px 0;
+  background: rgba(16, 185, 129, 0.1);
+  border-radius: 8px;
+}
+
+.currentPrice {
+  font-size: 20px;
+  font-weight: 700;
+  color: #10b981;
+}
+
+.priceChange {
+  font-size: 14px;
+  color: #10b981;
+  font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .tradingGlassContainer {
+    flex-direction: column;
+  }
+
+  .orderBookSection{
+    max-width: 100%;
+  }
+}

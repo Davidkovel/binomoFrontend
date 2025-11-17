@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Crown, Sparkles, Coins, LogOut } from 'lucide-react';
+import { Wallet, LogOut, User, Settings, TrendingUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import PaymentModal from '../modals/PaymentModal';
-import './Header.css';
+import styles from './Header.module.css';
+
+import { useAuth } from '../../features/hooks/useAuth'
+import { useMeQuery } from '../../features/auth/authApi';
 import { UserContext } from "../../features/context/UserContext"
 
 import { CONFIG_API_BASE_URL } from '../../config/constants';
@@ -12,11 +15,15 @@ const API_BASE_URL = CONFIG_API_BASE_URL;
 const Header = () => {
   const navigate = useNavigate();
   const [userName, setUserName] = useState('Guest');
-  const [userLevel, setUserLevel] = useState('Trader');
-  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const { isAuthenticated, isLoading, setIsAuthenticated, logout: authLogout } = useAuth();
+  const [walletAddress, setWalletAddress] = useState('');
 
-  // Получаем баланс из Context
-  const { userBalance, setUserBalance, isAuthenticated, setIsAuthenticated } = useContext(UserContext);
+  const { userBalance, setUserBalance } = useContext(UserContext);
+
+  // me endpoint
+  const { data: userData, error, refetch } = useMeQuery(undefined, {
+    skip: !isAuthenticated, // Запрос выполняется только если пользователь аутентифицирован
+  });
 
   const menuNavigation = [
     { name: "Spot", path: "/trading"},
@@ -26,52 +33,24 @@ const Header = () => {
     { name: "Earn", path: "/staking"},
   ]
 
-
-   useEffect(() => {
-    const fetchBalance = async () => {
-      try {
-        const token = localStorage.getItem("access_token");
-        
-        if (!token) {
-          console.log('No token, skipping balance fetch');
-          return;
-        }
-
-        const response = await fetch(`${API_BASE_URL}/api/user/get_balance`, {
-          headers: {
-            "Authorization": `Bearer ${token}`,
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error("Ошибка при получении баланса");
-        }
-
-        const data = await response.json();
-        const balance = parseFloat(data.balance);
-        
-        //console.log('✅ Баланс загружен с бэкенда:', balance);
-        
-        // Обновляем через Context (автоматически сохранится в sessionStorage)
-        setUserBalance(balance);
-        
-      } catch (err) {
-        console.error('❌ Ошибка загрузки баланса:', err);
-      }
-    };
-
-
-    fetchBalance();
-  }, []); // Выполняется один раз при монтировании
-
-  // Проверка токена
   useEffect(() => {
     const token = localStorage.getItem('access_token');
     if (token) {
       setIsAuthenticated(true);
-      setUserName('John Doe'); // Замени на реальные данные с API
+      // Данные пользователя автоматически загрузятся через useMeQuery
     }
   }, [setIsAuthenticated]);
+
+  // Обновляем данные пользователя когда приходят с бекенда
+  useEffect(() => {
+    if (userData) {
+      console.log(userData);
+      setUserName(userData.name || 'User');
+      setUserBalance(userData.balance || 0);
+      
+      sessionStorage.setItem('balance', userData.balance?.toString() || '0');
+    }
+  }, [userData, setUserBalance]);
 
   const handleLogout = () => {
     localStorage.removeItem('access_token');
@@ -105,72 +84,95 @@ const Header = () => {
     navigate('/balance'); // Переход на страницу баланса
   };
 
-  return (
-      <>
-      <header className="casino-header">
-        {/* Логотип и навигация слева */}
-          {/* Флаг UZ слева в конце */}
-          <div onClick={handleHome} style={{ cursor: "pointer" }}>
-            <span className="flag-text-green">F<span className="finova-i">i</span>nova</span>
-          </div>
+  const handleConnectWallet = async () => {
+    navigate('/register');
+  };
 
-        {/* Навигационное меню по центру */}
-        <div className="nav-menu">
-          {menuNavigation.map((item, index) => (
-            <div key={index} className="nav-item" onClick={() => handlePage(item.path)}>
-              <div className='nav-name'>{item.name}</div>
-            </div>
-          ))}
+  const formatAddress = (address) => {
+    if (!address) return '';
+    return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  };
+
+  return (
+    <header className={styles.header}>
+      <div className={styles.headerContainer}>
+        {/* Logo */}
+        <div className={styles.logoSection} onClick={handleHome}>
+          <div className={styles.logoIcon}>⚡</div>
+          <span className={styles.logoText}>
+            <span className={styles.logoMain}>XGenious</span>
+            <span className={styles.logoSub}>DEX</span>
+          </span>
         </div>
 
-        {/* Информация пользователя и баланс справа */}
-        <div className="header-right">
+        {/* Navigation Menu */}
+        <nav className={styles.navMenu}>
+          {menuNavigation.map((item, index) => (
+            <button
+              key={index}
+              className={styles.navItem}
+              onClick={() => handlePage(item.path)}
+            >
+              {item.name}
+            </button>
+          ))}
+        </nav>
+
+        {/* Right Section */}
+        <div className={styles.headerRight}>
           {isAuthenticated ? (
             <>
-              {/* Зеленый баланс в UZS с зеленым текстом */}
-              <div className="balance-container">
-                <div className="balance-amount green-text">
-                  {userBalance.toLocaleString('ru-RU', { 
-                    minimumFractionDigits: 2, 
-                    maximumFractionDigits: 2 
-                  })} UZS
+              {/* User Name */}
+              <div className={styles.userInfo}>
+                <div className={styles.userIcon}>
+                  <User size={16} />
                 </div>
-                <div className="balance-label green-text">HAQIQLI BALANS</div>
+                <span className={styles.userName}>{userName}</span>
               </div>
 
-              {/* Желтая кнопка "Пополнить" */}
-              <button 
-                className="deposit-btn orange-btn"
-                onClick={handleDepositClick}
-              >
-                <span>SHAXSIY KABINET</span>
+              {/* Balance Display */}
+              <div className={styles.balanceContainer}>
+                <div className={styles.balanceLabel}>Balance</div>
+                <div className={styles.balanceAmount}>
+                  ${userBalance.toLocaleString('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                  })}
+                </div>
+              </div>
+
+              {/* Wallet Address */}
+              <div className={styles.walletInfo}>
+                <div className={styles.walletIcon}>
+                  <Wallet size={18} />
+                </div>
+                <span className={styles.walletAddress}>
+                  {formatAddress(walletAddress || '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb')}
+                </span>
+              </div>
+
+              {/* Settings Button */}
+              <button className={styles.iconBtn}>
+                <Settings size={20} />
               </button>
 
-              {/* Кнопка выхода */}
-              <button className="logout-btn" onClick={handleLogout}>
-                <LogOut size={20} />
-                <span>Chiqish</span>
+              {/* Disconnect Button */}
+              <button className={styles.disconnectBtn} onClick={handleLogout}>
+                <LogOut size={18} />
               </button>
             </>
           ) : (
             <>
-              {/* Кнопка входа для неавторизованных */}
-              <button className="login-btn" onClick={handleLogin}>
-                Kirish
-              </button>
-              <button className="register-btn" onClick={() => navigate('/register')}>
-                Ro‘yxatdan o‘tish
+              {/* Connect Wallet Button */}
+              <button className={styles.connectWalletBtn} onClick={handleConnectWallet}>
+                <Wallet size={18} />
+                <span>Connect Wallet</span>
               </button>
             </>
           )}
         </div>
-      </header>
-
-      <PaymentModal 
-        isOpen={isPaymentModalOpen}
-        onClose={() => setIsPaymentModalOpen(false)}
-      />
-      </>
+      </div>
+    </header>
   );
 };
 

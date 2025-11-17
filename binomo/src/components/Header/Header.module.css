@@ -1,0 +1,324 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@500;600&display=swap');
+
+:root {
+  /* Colors */
+  --color-bg-dark: rgb(20, 24, 27);
+  --color-border: rgba(148, 163, 184, 0.1);
+  --color-accent: rgb(204, 56, 255);
+  --color-pink-gradient: linear-gradient(rgb(204, 56, 255) 0%, rgb(122, 53, 203) 100%);
+  --color-backround: rgb(11, 14, 18);
+}
+
+/* Header */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+  background: var(--color-backround);
+  backdrop-filter: blur(20px);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.headerContainer {
+  max-width: 1920px;
+  margin: 0 auto;
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 32px;
+}
+
+/* Logo Section */
+.logoSection {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.logoSection:hover {
+  transform: scale(1.02);
+}
+
+.logoIcon {
+  width: 40px;
+  height: 40px;
+  background: var(--color-pink-gradient);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
+}
+
+.logoText {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  font-family: 'Space Grotesk', 'Inter', sans-serif;
+}
+
+.logoMain {
+  font-size: 24px;
+  font-weight: 700;
+  background: var(--color-pink-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.5px;
+}
+
+.logoSub {
+  font-size: 16px;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+/* Navigation Menu */
+.navMenu {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+  justify-content: center;
+}
+
+.navItem {
+  padding: 10px 20px;
+  background: transparent;
+  border: none;
+  color: #cbd5e1;
+  font-size: 17px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.navItem::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 2px;
+  background: var(--color-pink-gradient);
+  transition: width 0.3s;
+}
+
+.navItem:hover {
+  color: #fff;
+  background: var(--color-backround);
+}
+
+.navItem:hover::after {
+  width: 60%;
+}
+
+.navItem.active {
+  color: #a855f7;
+  background: var(--color-pink-gradient);
+}
+
+/* Header Right Section */
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Balance Container */
+.balanceContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding: 8px 16px;
+  background: rgba(16, 185, 129, 0.1);
+  border-radius: 10px;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.balanceLabel {
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.balanceAmount {
+  font-size: 16px;
+  font-weight: 700;
+  color: #10b981;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: -0.5px;
+}
+
+/* Wallet Info */
+.walletInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 10px;
+  transition: all 0.2s;
+}
+
+.walletInfo:hover {
+  border-color: #a855f7;
+  background: rgba(168, 85, 247, 0.05);
+}
+
+.walletIcon {
+  display: flex;
+  align-items: center;
+  color: #a855f7;
+}
+
+.walletAddress {
+  font-size: 14px;
+  font-weight: 600;
+  color: #cbd5e1;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Icon Button */
+.iconBtn {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 10px;
+  color: #cbd5e1;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.iconBtn:hover {
+  border-color: #a855f7;
+  color: #a855f7;
+  background: rgba(168, 85, 247, 0.05);
+}
+
+/* Disconnect Button */
+.disconnectBtn {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 10px;
+  color: #ef4444;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.disconnectBtn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #ef4444;
+}
+
+/* Connect Wallet Button */
+.connectWalletBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: var(--color-pink-gradient);
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
+}
+
+.connectWalletBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(168, 85, 247, 0.4);
+}
+
+.connectWalletBtn:active {
+  transform: translateY(0);
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .navMenu {
+    gap: 4px;
+  }
+
+  .navItem {
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 900px) {
+  .headerContainer {
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .navMenu {
+    order: 3;
+    width: 100%;
+    justify-content: flex-start;
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+
+  .navMenu::-webkit-scrollbar {
+    height: 2px;
+  }
+
+  .navMenu::-webkit-scrollbar-track {
+    background: rgba(148, 163, 184, 0.05);
+  }
+
+  .navMenu::-webkit-scrollbar-thumb {
+    background: rgba(168, 85, 247, 0.3);
+    border-radius: 1px;
+  }
+
+  .balanceContainer {
+    display: none;
+  }
+
+  .logoMain {
+    font-size: 20px;
+  }
+
+  .logoSub {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 600px) {
+  .headerContainer {
+    padding: 12px 16px;
+  }
+
+  .walletAddress {
+    font-size: 12px;
+  }
+
+  .connectWalletBtn {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+}

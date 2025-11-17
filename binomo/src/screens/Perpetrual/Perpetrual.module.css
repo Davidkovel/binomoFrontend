@@ -1,0 +1,343 @@
+:root {
+  /* Colors */
+  --color-bg-dark: rgb(20, 24, 27);
+  --color-border: rgba(148, 163, 184, 0.1);
+  --color-accent: rgb(204, 56, 255);
+  --color-backround: rgb(11, 14, 18);
+}
+
+/* Main Container */
+.perpetualContainer {
+  width: 100%;
+  min-height: 100vh;
+  background: var(--color-backround);
+  padding: 20px;
+}
+
+/* 
+  GRID LAYOUT ОБЪЯСНЕНИЕ:
+  
+  Структура сетки:
+  - 3 колонки: 1fr (график) | 350px (стакан) | 350px (трейдинг контролы)
+  - 2 строки: auto (верхний ряд) | auto (нижний ряд)
+  
+  Расположение элементов:
+  .chartSection          - grid-area: 1 / 1 / 2 / 2  (строка 1, колонка 1)
+  .orderBookSection      - grid-area: 1 / 2 / 2 / 3  (строка 1, колонка 2)
+  .tradingControlsSection- grid-area: 1 / 3 / 2 / 4  (строка 1, колонка 3)
+  .bottomInfoSection     - grid-area: 2 / 1 / 3 / 3  (строка 2, колонки 1-2)
+  .accountSection        - grid-area: 2 / 3 / 3 / 4  (строка 2, колонка 3)
+  
+  Визуально:
+  ┌────────────────┬─────────────┬─────────────┐
+  │                │             │             │
+  │   График       │   Стакан    │   Трейдинг  │
+  │   (Chart)      │  (OrderBook)│  (Controls) │
+  │                │             │             │
+  ├────────────────┴─────────────┼─────────────┤
+  │                              │             │
+  │  Позиции/История             │  Аккаунт    │
+  │  (Bottom Info)               │  (Account)  │
+  │                              │             │
+  └──────────────────────────────┴─────────────┘
+*/
+
+/* Grid Layout */
+.gridLayout {
+  display: grid;
+  grid-template-columns: 1fr 370px 350px;
+  grid-template-rows: auto auto;
+  gap: 20px;
+  max-width: 1920px;
+  margin: 0 auto;
+}
+
+/* 1. Chart Section - Строка 1, Колонка 1 */
+.chartSection {
+  grid-area: 1 / 1 / 2 / 2;
+  background: var(--color-bg-dark);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: rgb(204, 56, 255) 0px -2px 0px 0px inset;
+}
+
+/* 2. Order Book Section - Строка 1, Колонка 2 */
+.orderBookSection {
+  grid-area: 1 / 2 / 2 / 3;
+}
+
+/* 3. Trading Controls Section - Строка 1, Колонка 3 */
+.tradingControlsSection {
+  grid-area: 1 / 3 / 2 / 4;
+}
+
+/* 4. Bottom Info Section - Строка 2, Колонки 1-2 (span 2 columns) */
+.bottomInfoSection {
+  grid-area: 2 / 1 / 3 / 3;
+  background: var(--color-bg-dark);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: rgb(204, 56, 255) 0px -2px 0px 0px inset;
+}
+
+.tabsHeader {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--color-border);
+  background: rgba(15, 23, 42, 0.4);
+  overflow-x: auto;
+}
+
+.tabsHeader::-webkit-scrollbar {
+  height: 2px;
+}
+
+.tabsHeader::-webkit-scrollbar-track {
+  background: rgba(148, 163, 184, 0.05);
+}
+
+.tabsHeader::-webkit-scrollbar-thumb {
+  background: rgba(204, 56, 255, 0.3);
+}
+
+.tab,
+.tabActive {
+  padding: 16px 24px;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+}
+
+.tabActive {
+  color: var(--color-accent);
+  border-bottom-color: var(--color-accent);
+  background: rgba(204, 56, 255, 0.05);
+}
+
+.tab:hover {
+  color: #fff;
+  background: rgba(148, 163, 184, 0.05);
+}
+
+.tabContent {
+  padding: 24px;
+  min-height: 200px;
+}
+
+/* 5. Account Section - Строка 2, Колонка 3 */
+.accountSection {
+  grid-area: 2 / 3 / 3 / 4;
+  background: var(--color-bg-dark);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: rgb(204, 56, 255) 0px -2px 0px 0px inset;
+}
+
+.accountTabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--color-border);
+  background: rgba(15, 23, 42, 0.4);
+}
+
+.accountTab,
+.accountTabActive {
+  flex: 1;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-bottom: 2px solid transparent;
+}
+
+.accountTabActive {
+  color: var(--color-accent);
+  border-bottom-color: var(--color-accent);
+  background: rgba(204, 56, 255, 0.05);
+}
+
+.accountTab:hover {
+  color: #fff;
+  background: rgba(148, 163, 184, 0.05);
+}
+
+.accountContent {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.accountContent::-webkit-scrollbar {
+  width: 4px;
+}
+
+.accountContent::-webkit-scrollbar-track {
+  background: rgba(148, 163, 184, 0.05);
+}
+
+.accountContent::-webkit-scrollbar-thumb {
+  background: rgba(204, 56, 255, 0.3);
+  border-radius: 2px;
+}
+
+.accountItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+}
+
+.accountLabel {
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+.accountValue {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.accountDivider {
+  height: 1px;
+  background: var(--color-border);
+  margin: 12px 0;
+}
+
+.multiAssetMode {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: rgba(204, 56, 255, 0.05);
+  border: 1px solid rgba(204, 56, 255, 0.2);
+  border-radius: 8px;
+  margin-top: 12px;
+  font-size: 13px;
+  color: #cbd5e1;
+  font-weight: 500;
+}
+
+.toggle {
+  position: relative;
+}
+
+.toggle input {
+  display: none;
+}
+
+.toggle label {
+  display: block;
+  width: 44px;
+  height: 24px;
+  background: rgba(148, 163, 184, 0.2);
+  border-radius: 12px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.toggle label::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: #fff;
+  border-radius: 50%;
+  transition: all 0.3s;
+}
+
+.toggle input:checked + label {
+  background: linear-gradient(135deg, var(--color-accent), #ec4899);
+}
+
+.toggle input:checked + label::after {
+  left: 22px;
+}
+
+/* Empty State */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  color: #94a3b8;
+}
+
+.emptyIcon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.emptyState p {
+  margin: 8px 0;
+  font-size: 14px;
+}
+
+.emptySubtext {
+  color: #64748b;
+  font-size: 13px !important;
+  max-width: 400px;
+}
+
+/* Responsive - На средних экранах */
+@media (max-width: 1600px) {
+  .gridLayout {
+    grid-template-columns: 1fr 300px 300px;
+  }
+}
+
+/* Responsive - На маленьких экранах */
+@media (max-width: 1200px) {
+  /* 
+    На мобильных переключаемся на одну колонку:
+    Все элементы идут друг под другом
+  */
+  .gridLayout {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+
+  .chartSection {
+    grid-area: auto;
+  }
+
+  .orderBookSection {
+    grid-area: auto;
+  }
+
+  .tradingControlsSection {
+    grid-area: auto;
+  }
+
+  .bottomInfoSection {
+    grid-area: auto;
+  }
+
+  .accountSection {
+    grid-area: auto;
+  }
+}

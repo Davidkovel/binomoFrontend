@@ -1,0 +1,326 @@
+:root {
+  /* Colors */
+  --color-bg-dark: rgb(20, 24, 27);
+  --color-border: rgba(148, 163, 184, 0.1);
+  --color-accent: rgb(204, 56, 255);
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #94a3b8;
+  --color-positive: #10b981;
+  --color-negative: #ef4444;
+}
+
+/* Toolbar Container */
+.toolbarContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--color-bg-dark);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  gap: 24px;
+  box-shadow: rgb(204, 56, 255) 0px -2px 0px 0px inset;
+}
+
+/* Pair Selector Section */
+.pairSelectorSection {
+  position: relative;
+  min-width: 200px;
+}
+
+.pairButton {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: rgba(204, 56, 255, 0.1);
+  border: 1px solid rgba(204, 56, 255, 0.3);
+  border-radius: 8px;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.pairButton:hover {
+  background: rgba(204, 56, 255, 0.2);
+  border-color: var(--color-accent);
+  box-shadow: 0 0 12px rgba(204, 56, 255, 0.3);
+}
+
+.pairName {
+  font-size: 18px;
+  letter-spacing: -0.5px;
+}
+
+.chevron {
+  color: var(--color-accent);
+  transition: transform 0.3s;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+/* Dropdown */
+.dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 450px;
+  background: var(--color-bg-dark);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 
+              rgb(204, 56, 255) 0px -2px 0px 0px inset;
+  z-index: 1000;
+  animation: dropdownSlide 0.2s ease-out;
+}
+
+@keyframes dropdownSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdownHeader {
+  padding: 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.searchWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 12px;
+  color: var(--color-text-secondary);
+}
+
+.searchInput {
+  width: 100%;
+  padding: 10px 12px 10px 40px;
+  background: rgba(148, 163, 184, 0.05);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  color: var(--color-text-primary);
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.searchInput:focus {
+  border-color: var(--color-accent);
+  background: rgba(204, 56, 255, 0.05);
+  box-shadow: 0 0 0 3px rgba(204, 56, 255, 0.1);
+}
+
+.searchInput::placeholder {
+  color: var(--color-text-secondary);
+}
+
+/* Dropdown Content */
+.dropdownContent {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.dropdownContent::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dropdownContent::-webkit-scrollbar-track {
+  background: rgba(148, 163, 184, 0.05);
+}
+
+.dropdownContent::-webkit-scrollbar-thumb {
+  background: rgba(204, 56, 255, 0.3);
+  border-radius: 3px;
+}
+
+.dropdownContent::-webkit-scrollbar-thumb:hover {
+  background: rgba(204, 56, 255, 0.5);
+}
+
+/* Table */
+.dropdownTable {
+  padding: 8px;
+}
+
+.tableHeader {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 1fr;
+  padding: 8px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: 4px;
+}
+
+.pairRow {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 1fr;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pairRow:hover {
+  background: rgba(204, 56, 255, 0.05);
+}
+
+.pairRowActive {
+  background: rgba(204, 56, 255, 0.1);
+  border: 1px solid rgba(204, 56, 255, 0.3);
+}
+
+.pairInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.favoriteBtn {
+  padding: 4px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.favoriteBtn:hover {
+  transform: scale(1.2);
+}
+
+.star {
+  color: var(--color-text-secondary);
+}
+
+.starActive {
+  color: #fbbf24;
+}
+
+.pairSymbol {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.pairPrice {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Market Stats Section */
+.marketStatsSection {
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 100px;
+}
+
+.statLabel {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.statValue {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: -0.5px;
+}
+
+.changePositive {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-positive);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.changeNegative {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-negative);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Responsive */
+@media (max-width: 1400px) {
+  .marketStatsSection {
+    gap: 20px;
+  }
+
+  .statItem {
+    min-width: 80px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .toolbarContainer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .pairSelectorSection {
+    width: 100%;
+  }
+
+  .pairButton {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .dropdown {
+    width: 100%;
+  }
+
+  .marketStatsSection {
+    width: 100%;
+    justify-content: flex-start;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .marketStatsSection {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .statItem {
+    min-width: auto;
+  }
+}

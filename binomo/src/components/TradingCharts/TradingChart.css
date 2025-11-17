@@ -1,14 +1,8 @@
 /* Chart Container */
 .chart-card {
-  background: rgba(7, 27, 52);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
-  padding: 24px;
-  margin-bottom: 24px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  height: 100%;
 }
-
 .chart-title {
   font-size: 20px;
   font-weight: 600;
@@ -41,9 +35,7 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .trading-platform {
-    padding: 16px;
-  }
+
 }
 
 @media (max-width: 480px) {

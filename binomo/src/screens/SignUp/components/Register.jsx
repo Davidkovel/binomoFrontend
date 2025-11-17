@@ -1,82 +1,91 @@
 import React, { useState } from 'react';
-import { Lock, Mail, User, TrendingUp, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import './Register.css';
+import { useDispatch, useSelector } from 'react-redux';
+import { AlertCircle, User, Mail, Lock, TrendingUp } from 'lucide-react';
+
+import { useSignUpMutation } from '../../../features/auth/authApi'
+import { setError, clearError, setUser } from '../../../features/auth/authSlice'
 import { CONFIG_API_BASE_URL } from '../../../config/constants';
+
+import './Register.css';
+
+// test@gmail.com
+// stringString123%%%
 
 const API_BASE_URL = CONFIG_API_BASE_URL;
 
 export default function Register() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { error, isLoading } = useSelector((state) => state.auth);
+  const [signUp] = useSignUpMutation();
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: ''
   });
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
 
   const handleInputChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
-    setError('');
+    dispatch(clearError()); // Очищаем ошибку
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
+    e.preventDefault(); // Предотвращаем перезагрузку страницы
+    dispatch(clearError());
 
-    // Basic validation
     if (formData.password.length < 6) {
-      setError('Parol kamida 6 ta belgidan iborat bo‘lishi kerak');
-      setLoading(false);
+      dispatch(setError('Parol kamida 6 ta belgidan iborat bo‘lishi kerak'));
       return;
     }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/user/auth/sign-up`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          password: formData.password
-        })
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        localStorage.setItem('access_token', data.token);
-        // Redirect to trading platform
-        navigate('/trading');
-      } else {
-        // 👇 Проверяем формат ошибки
+      // Вызов API - как await _authService.SignUpAsync(request)
+      const result = await signUp(formData).unwrap();
+      
+      // Если успешно (как response.IsSuccessStatusCode)
+      localStorage.setItem('access_token', result.accessToken);
+      if (result.refreshToken) {
+        localStorage.setItem('refresh_token', result.refreshToken);
+      }
+      dispatch(setUser({ 
+        name: formData.name, 
+        email: formData.email 
+      }));
+      
+      // Редирект - как NavigationManager.NavigateTo("/trading")
+      navigate('/trading');
+      
+    } catch (error) {
+      console.log('Full error object:', error);
+      
+      if (error.data) {
+        const data = error.data;
+        
+        // Проверяем формат ошибки (аналог ProblemDetails в C#)
         if (Array.isArray(data) && data.length > 0) {
-          // Если ошибка связана с паролем
+          // Ошибка валидации - как ModelState.AddError()
           if (data[0].loc && data[0].loc.includes('password')) {
-            setError('Ishonchsiz parol. Xavfsiz parol misoli: qwerty12');
+            dispatch(setError('Ishonchsiz parol. Xavfsiz parol misoli: qwertyQwerty12??'));
           } else {
-            setError(data[0].msg || 'Maʼlumotlarni tekshirishda xatolik');
+            dispatch(setError(data[0].msg || 'Maʼlumotlarni tekshirishda xatolik'));
           }
         } else if (data.detail) {
-          setError(data.detail);
+          // Кастомная ошибка - как ProblemDetails.Detail
+          dispatch(setError(data.detail));
         } else if (data.message) {
-          setError(data.message);
+          dispatch(setError(data.message));
         } else {
-          setError('Ishonchsiz parol. Xavfsiz parol misoli: qwerty12');
+          dispatch(setError('Ishonchsiz parol. Xavfsiz parol misoli: qwertyQwerty12??'));
         }
+      } else {
+        // Сетевая ошибка
+        dispatch(setError('Serverga ulanish muvaffaqiyatsiz. Backend 8080-portda ishlayotganiga ishonch hosil qiling.'));
       }
-    } catch (err) {
-      setError('Serverga ulanish muvaffaqiyatsiz. Backend 8080-portda ishlayotganiga ishonch hosil qiling.');
-      console.error('Error:', err);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -159,9 +168,9 @@ export default function Register() {
           <button 
             onClick={handleSubmit}
             className="submit-btn"
-            disabled={loading}
+            disabled={isLoading}
           >
-            {loading ? (
+            {isLoading ? (
               <span className="loading-spinner"></span>
             ) : (
               'Hisob yaratish'

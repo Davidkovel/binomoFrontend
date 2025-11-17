@@ -7,7 +7,7 @@ import Register from './screens/SignUp/components/Register';
 import MainScreen from './screens/Main/components/Main';
 import ProtectedRoute from './components/routing/ProtectedRoute';
 import BalancePage from './screens/Profile/components/BalancePage';
-import PerpetrualTradingPlatform from './screens/Perpetrual/components/Perpetrual';
+import PerpetrualTradingPlatform from './screens/Perpetrual/Perpetrual';
 import { UserProvider } from './features/context/UserContext';
 
 function App() {
@@ -59,3 +59,7 @@ function App2() {
 }
 
 export default App2;
+
+
+// @TODO:
+// 1. Увеличить график, 2. Websocket для стакана, 3. search pairs 4. переходить на бек
