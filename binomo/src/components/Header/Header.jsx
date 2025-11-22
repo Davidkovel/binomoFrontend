@@ -61,6 +61,7 @@ const Header = () => {
     localStorage.removeItem("hasTraded");
     localStorage.removeItem("pendingWithdraw");
     localStorage.removeItem("initial_deposit");
+    localStorage.removeItem("refresh_token")
 
     
     setIsAuthenticated(false);

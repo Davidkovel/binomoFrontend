@@ -10,9 +10,10 @@ export const authApi = createApi({
     prepareHeaders: (headers) => {
       const token = localStorage.getItem('access_token');
       if (token) {
-        headers.set('authorization', `Bearer ${token}`);
+        headers.set('Authorization', `Bearer ${token}`);
       }
       headers.set('Content-Type', 'application/json');
+      console.log('token:', token)
       return headers;
     },
   }),
@@ -41,3 +42,7 @@ export const authApi = createApi({
 });
 
 export const { useSignUpMutation, useLoginMutation, useMeQuery} = authApi;
+
+
+// test2@gmail.com
+// ghghASSD123!!

@@ -8,6 +8,7 @@ import MainScreen from './screens/Main/components/Main';
 import ProtectedRoute from './components/routing/ProtectedRoute';
 import BalancePage from './screens/Profile/components/BalancePage';
 import PerpetrualTradingPlatform from './screens/Perpetrual/Perpetrual';
+import Portfolio from './screens/Portfolio/Portfolio';
 import { UserProvider } from './features/context/UserContext';
 
 function App() {
@@ -36,6 +37,16 @@ function App2() {
                 <PerpetrualTradingPlatform />
               </ProtectedRoute>
             } 
+          />
+
+          <Route
+            path='/portfolio'
+            element={
+              <ProtectedRoute>
+                <Header />
+                <Portfolio />
+              </ProtectedRoute>
+            }
           />
 
           <Route 
