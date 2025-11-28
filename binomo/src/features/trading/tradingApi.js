@@ -1,6 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 import {CONFIG_API_BASE_URL} from '../../config/constants';
+import { use } from 'react';
 
 const baseQueryWithLogging = async (args, api, extraOptions) => {
   console.group('🔍 RTK Query Request');
@@ -34,7 +35,7 @@ const baseQueryWithLogging = async (args, api, extraOptions) => {
 export const tradingApi = createApi({
   reducerPath: 'tradingApi',
   baseQuery: baseQueryWithLogging,
-  tagTypes: ['Position', 'ActivePositions'],
+  tagTypes: ['Position', 'ActivePositions', 'HistoryPositions', 'LimitOrders'],
   endpoints: (builder) => ({
     // Open Position
     openPosition: builder.mutation({
@@ -81,7 +82,30 @@ export const tradingApi = createApi({
         `/positions/history?page=${page}&pageSize=${pageSize}`,
       providesTags: ['HistoryPositions'],
       keepUnusedDataFor: 30, // Кэш на 30 секунд
-    })
+    }),
+
+    OpenLimitOrder: builder.mutation({
+      query: (limitOrderData) => ({
+        url: '/limitorder/open',
+        method: 'POST',
+        body: limitOrderData,
+      }),
+      invalidatesTags: ['ActivePositions'],
+    }),
+
+    GetLimitOrders: builder.query({
+      query: () => '/limit_orders',
+      providesTags: ['LimitOrders'],
+      keepUnusedDataFor: 30,
+    }),
+
+    CancelLimitOrder: builder.mutation({
+      query: (orderId) => ({
+        url: `/cancel_limit_order/${orderId}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['LimitOrders', 'ActivePositions'],
+    }),
   }),
 });
 
@@ -91,4 +115,7 @@ export const {
   useGetActivePositionsQuery,
   useGetPositionQuery,
   useGetHistoryPositionsQuery,
+  useOpenLimitOrderMutation,
+  useGetLimitOrdersQuery,
+  useCancelLimitOrderMutation
 } = tradingApi;

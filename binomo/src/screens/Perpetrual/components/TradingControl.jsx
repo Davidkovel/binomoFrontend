@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { useOpenPositionMutation } from '../../../features/trading/tradingApi';
+import { useOpenPositionMutation, useOpenLimitOrderMutation } from '../../../features/trading/tradingApi';
 import { selectSelectedPair } from '../../../features/trading/tradingSlice';
 import { selectLivePrices } from '../../../features/trading/tradingSlice';
 
@@ -19,13 +19,31 @@ const TradingControl = () => {
     const [limitPrice, setLimitPrice] = useState('');
 
     const [openPosition, { isLoading: isOpening }] = useOpenPositionMutation();
+    const [openLimitOrder, { isLoading: isOpeningLimit }] = useOpenLimitOrderMutation();
 
-    const leverageOptions = [1, 2, 5, 10, 25, 50, 75, 100, 125];
+    const leverageOptions = [1, 2, 5, 10, 25, 50, 75, 100, 900];
     
     const currentPrice = livePrices[selectedPair]?.price;
 
+    const calculateLiquidationPrice = (type, entryPrice, leverage) => {
+        if (!entryPrice || !leverage) return 0;
+        
+        const leverageRatio = 1 / leverage;
+        
+        if (type === 'Long') {
+            // Для лонга: entryPrice * (1 - 1/leverage)
+            return entryPrice * (1 - leverageRatio);
+        } else {
+            // Для шорта: entryPrice * (1 + 1/leverage)
+            return entryPrice * (1 + leverageRatio);
+        }
+    };
+
+    const liquidationPrice = currentPrice ? 
+        calculateLiquidationPrice('Long', currentPrice, leverage) : 0;
+
     const handleLeverageChange = (value) => {
-        setLeverage(Math.max(1, Math.min(125, value)));
+        setLeverage(Math.max(1, Math.min(1000, value)));
     };
 
     const handleLongTrade = async () => {
@@ -42,23 +60,53 @@ const TradingControl = () => {
             return;
         }
 
-        try {
-            const positionData = {
-                symbol: selectedPair,
-                type: type === 'Long' ? 1 : 2,
-                amount: parseFloat(amount),
-                leverage: leverage,
-                orderType: orderType === 'market' ? 1 : 2,
-                currentPrice: currentPrice,
-                limitPrice: orderType === 'limit' && limitPrice ? parseFloat(limitPrice) : null,
-                stopLoss: null,
-                takeProfit: null
-            };
+        // Для лимитных ордеров проверяем limitPrice
+        if (orderType === 'limit' && (!limitPrice || parseFloat(limitPrice) <= 0)) {
+            alert('Iltimos, limit narxini kiriting');
+            return;
+        }
 
-            const result = await openPosition(positionData).unwrap();
-            
-            console.log(`${type} position opened:`, result);
-            alert(`Pozitsiya muvaffaqiyatli ochildi!`);
+        try {
+            const entryPrice = orderType === 'market' ? currentPrice : (limitPrice || currentPrice);
+            const liqPrice = calculateLiquidationPrice(type, entryPrice, leverage);
+
+            if (orderType === 'market') {
+                // MARKET ORDER
+                const positionData = {
+                    symbol: selectedPair,
+                    type: type === 'Long' ? 1 : 2, // 1 для Long, 2 для Short
+                    amount: parseFloat(amount),
+                    leverage: leverage,
+                    orderType: 1, // 1 = Market
+                    currentPrice: currentPrice,
+                    limitPrice: null,
+                    stopLoss: null,
+                    takeProfit: null,
+                    liquidationPrice: liqPrice
+                };
+
+                const result = await openPosition(positionData).unwrap();
+                console.log(`${type} market position opened:`, result);
+                alert(`Market pozitsiya muvaffaqiyatli ochildi!`);
+                
+            } else {
+                // LIMIT ORDER
+                const limitOrderData = {
+                    symbol: selectedPair,
+                    type: type === 'Long' ? 1 : 2, // 1 для Long, 2 для Short
+                    side: type === 'Long' ? 1 : 2, // 1 для Buy, 2 для Sell
+                    limitPrice: parseFloat(limitPrice),
+                    amount: parseFloat(amount),
+                    margin: parseFloat(amount) / leverage, // Рассчитываем маржу
+                    leverage: leverage,
+                    stopLoss: null,
+                    takeProfit: null
+                };
+
+                const result = await openLimitOrder(limitOrderData).unwrap();
+                console.log(`${type} limit order created:`, result);
+                alert(`Limit order muvaffaqiyatli yaratildi!`);
+            }
             
             setAmount('');
             setLimitPrice('');
@@ -74,6 +122,7 @@ const TradingControl = () => {
     const handlePercentageClick = (percent) => {
         console.log(`Selected ${percent}% of balance`);
     };
+
 
     return (
         <div className={styles.tradingControlsSection}>
@@ -107,7 +156,7 @@ const TradingControl = () => {
                 <input
                     type="range"
                     min="1"
-                    max="125"
+                    max="1000"
                     value={leverage}
                     onChange={(e) => handleLeverageChange(parseInt(e.target.value))}
                     className={styles.leverageSlider}
@@ -195,7 +244,7 @@ const TradingControl = () => {
                 </button>
             </div>
     
-            {/* Расчет маржи */}
+            {/* Расчет маржи и ликвидации */}
             <div className={styles.marginInfo}>
                 <div className={styles.marginRow}>
                     <span>Margin:</span>
@@ -204,6 +253,12 @@ const TradingControl = () => {
                 <div className={styles.marginRow}>
                     <span>Pozitsiya hajmi:</span>
                     <span>{(amount * leverage || 0).toFixed(2)} USDT</span>
+                </div>
+                <div className={styles.marginRow}>
+                    <span>Liquidation Price:</span>
+                    <span className={styles.liquidationPrice}>
+                        {liquidationPrice.toFixed(4)} USDT
+                    </span>
                 </div>
             </div>
     

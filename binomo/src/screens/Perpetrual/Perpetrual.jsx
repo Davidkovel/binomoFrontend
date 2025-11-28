@@ -12,6 +12,7 @@ import TradingGlass from '../../components/TradingGlass/TradingGlass';
 import TradingControls from './components/TradingControl';
 import ListActivePositions from './components/ListActivePositions';
 import ListHistoryPositions from './components/ListHistoryPositions';
+import OpenOrdersTab from './components/OpenOrdersTab';
 import initWebSocket from '../../services/websocketsInit';
 
 import styles from './Perpetrual.module.css';
@@ -155,10 +156,7 @@ export default function PerpetrualTradingPlatform() {
               <ListActivePositions />
             )}
             {activeTab === 'open-orders' && (
-              <div className={styles.emptyState}>
-                <div className={styles.emptyIcon}>📝</div>
-                <p>Ochiq orderlar yo'q</p>
-              </div>
+              <OpenOrdersTab/>
             )}
             {activeTab === 'order-history' && (
               <ListHistoryPositions/>

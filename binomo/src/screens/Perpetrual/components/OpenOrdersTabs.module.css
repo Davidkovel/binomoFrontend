@@ -1,0 +1,123 @@
+/* components/OpenOrdersTab.module.css */
+.ordersContainer {
+  width: 100%;
+}
+
+.ordersHeader {
+  padding: 16px 24px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.ordersHeader h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+}
+
+.ordersTable {
+  font-size: 14px;
+}
+
+.tableHeader,
+.orderRow {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr 0.8fr 1.2fr 0.8fr 0.8fr 1.5fr 1fr;
+  padding: 16px 24px;
+  gap: 16px;
+  align-items: center;
+}
+
+.tableHeader {
+  background: rgba(15, 23, 42, 0.8);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+  font-size: 12px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.orderRow {
+  border-bottom: 1px solid rgba(148, 163, 184, 0.05);
+  color: #cbd5e1;
+  transition: all 0.2s;
+}
+
+.orderRow:hover {
+  background: rgba(148, 163, 184, 0.05);
+}
+
+.symbol {
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  color: #fff;
+}
+
+.typeLong,
+.typeShort {
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  width: fit-content;
+}
+
+.typeLong {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+}
+
+.typeShort {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.sideBuy,
+.sideSell {
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  width: fit-content;
+}
+
+.sideBuy {
+  background: rgba(34, 211, 238, 0.1);
+  color: #22d3ee;
+}
+
+.sideSell {
+  background: rgba(168, 85, 247, 0.1);
+  color: #a855f7;
+}
+
+.limitPrice {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  color: #fbbf24;
+}
+
+.leverage {
+  font-weight: 600;
+  color: #a855f7;
+}
+
+.time {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+.cancelBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
