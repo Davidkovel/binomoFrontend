@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
  
 import { useGetHistoryPositionsQuery } from '../../../features/trading/tradingApi';
+import PositionHistoryModal from '../../../components/modals/PositionCardModel';
 
 import styles from './ListHistoryPositions.module.css';
 
 const ListHistoryPositions = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(20);
+  const [selectedPosition, setSelectedPosition] = useState(null);
 
   const {
     data: positions = [],
@@ -118,7 +120,7 @@ const ListHistoryPositions = () => {
           </thead>
           <tbody>
             {positions.map((position) => (
-              <tr key={position.id} className={styles.tableRow}>
+              <tr key={position.id} className={styles.tableRow} onClick={() => setSelectedPosition(position)}>
                 <td className={styles.symbolCell}>
                   <span className={styles.symbol}>{position.symbol}</span>
                 </td>
@@ -160,6 +162,16 @@ const ListHistoryPositions = () => {
           </tbody>
         </table>
       </div>
+
+      {selectedPosition && (
+        <PositionHistoryModal
+          position={selectedPosition}
+          onClose={() => setSelectedPosition(null)}
+          formatCurrency={formatCurrency}
+          formatPercentage={formatPercentage}
+          formatDate={formatDate}
+        />
+      )}
     </div>
   );
 };

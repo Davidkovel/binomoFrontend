@@ -1,0 +1,112 @@
+/* затемнение */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  animation: fadeIn 0.25s ease;
+}
+
+/* карточка */
+.modal {
+  position: relative;
+  width: 820px;
+  padding: 25px;
+  border-radius: 16px;
+
+  background-image: url('/trade_icon.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  color: #fff;
+}
+
+
+/* анимация появления */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(40px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* иконка */
+.iconWrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.icon {
+  width: 60px;
+  height: 60px;
+  opacity: 0.9;
+}
+
+.title {
+  text-align: center;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 8px 0 12px 0;
+}
+
+.side {
+  text-align: center;
+  margin-bottom: 14px;
+}
+
+.long {
+  color: #4caf50;
+  font-weight: bold;
+}
+
+.short {
+  color: #e53935;
+  font-weight: bold;
+}
+
+.infoBlock {
+  border-top: 1px solid var(--border-color);
+  padding-top: 12px;
+}
+
+.row {
+  display: flex;
+  justify-content: flex-start;
+  gap: 14px;
+  padding: 8px 0;
+  font-size: 14px;
+}
+
+.profit {
+  color: #4caf50;
+}
+
+.loss {
+  color: #e53935;
+}
+
+.closeButton {
+  margin-top: 18px;
+  width: 100%;
+  padding: 10px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text-primary);
+  transition: 0.2s;
+}
+
+.closeButton:hover {
+  background: var(--bg-hover);
+}
