@@ -1,92 +1,81 @@
 // src/components/ui/PaymentModal.jsx
-import React, { useState, useEffect } from 'react'; // Добавьте useEffect
-import { X, Upload, CreditCard } from "lucide-react";
+import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { CreditCard, X, Upload } from 'lucide-react';
+import { useDepositMutation } from '../../features/payment/paymentApi';
+import { setDeposit } from '../../features/payment/paymentSlice';
 import "./PaymentModal.css";
 import { CONFIG_API_BASE_URL } from '../../config/constants';
 
 const API_BASE_URL = CONFIG_API_BASE_URL;
 
 export default function PaymentModal({ isOpen, onClose }) {
-  const [amount, setAmount] = useState("");
+  const dispatch = useDispatch();
+  
+  const { cardInfo } = useSelector((state) => state.payment);
+  
+  const [deposit, { isLoading }] = useDepositMutation();
+
+  const [amount, setAmount] = useState('');
   const [file, setFile] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [cardNumber, setCardNumber] = useState(""); 
-  const [cardLoading, setCardLoading] = useState(true);
-  const [provider, setProvider] = useState('');
-
-
-  const fetchCardNumber = async () => {
-    try {
-      setCardLoading(true);
-      const token = localStorage.getItem('access_token');
-      const response = await fetch(`${API_BASE_URL}/api/user/card_number`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setCardNumber(data.card_number);
-      } else {
-        console.error('Ошибка при загрузке номера карты');
-        setCardNumber("8600 **** **** 1234"); // Fallback
-      }
-    } catch (error) {
-      console.error('Error fetching card number:', error);
-      setCardNumber("8600 **** **** 1234"); // Fallback
-    } finally {
-      setCardLoading(false);
-    }
-  };
+  const [provider, setProvider] = useState('Uzcard');
+  const [localError, setLocalError] = useState(null);
 
   useEffect(() => {
-    if (isOpen) {
-      fetchCardNumber();
+    if (isOpen && !cardInfo.cardNumber) {
+      // TODO: Dispatch fetchPaymentCard() если нужно
     }
-  }, [isOpen]);
-
-  if (!isOpen) return null;
+  }, [isOpen, cardInfo]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setLocalError(null);
+
+    if (!file) {
+      setLocalError("Kvitansiyani biriktiring");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("Amount", Number(amount));
+    formData.append("CardNumber", cardInfo.cardNumber || "8600123456789012"); // Fallback
+    formData.append("Provider", provider);
+    formData.append("receipt", file);
+
+    console.log("📤 Sending deposit:");
+    for (let [key, value] of formData.entries()) {
+      console.log(`  ${key}:`, value instanceof File ? `File(${value.name})` : value);
+    }
 
     try {
-      const token = localStorage.getItem('access_token');
-      const formData = new FormData();
+      const result = await deposit(formData).unwrap();
+
+      console.log("✅ Deposit result:", result);
+
+      dispatch(setDeposit(Number(amount)));
+
+      alert('✅ Depozit muvaffaqiyatli yuborildi! Adminlar tekshiradi.');
       
-      formData.append('amount', amount);
-      if (file) {
-        formData.append('invoice_file', file);
-      }
-
-      const response = await fetch(`${API_BASE_URL}/api/user/send_invoice_to_tg`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        body: formData
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        alert('Chek muvaffaqiyatli yuborildi! Mablag‘ tushishini kuting.');
-        onClose();
-        // Очистка формы
-        setAmount("");
-        setFile(null);
-      } else {
-        alert(data.message || 'Chekni yuborishda xatolik');
-      }
+      setAmount('');
+      setFile(null);
+      setProvider('Uzcard');
+      
+      onClose();
     } catch (error) {
-      console.error('Error:', error);
-      alert('Server bilan ulanishda xatolik');
-    } finally {
-      setLoading(false);
+      console.error("❌ Deposit error:", error);
+      
+      const errorMessage = 
+        error.data?.error || 
+        error.data?.title || 
+        error.error || 
+        "Noma'lum xatolik yuz berdi";
+      
+      setLocalError(errorMessage);
+      alert(`❌ Xatolik: ${errorMessage}`);
     }
   };
+
+  if (!isOpen) return null;
 
   return (
     <div className="payment-modal-overlay" onClick={onClose}>
@@ -94,85 +83,98 @@ export default function PaymentModal({ isOpen, onClose }) {
         <div className="payment-modal-header">
           <h2 className="payment-modal-title">
             <CreditCard className="modal-icon" />
-            Balansni to‘ldirish
+            Balansni to'ldirish
           </h2>
-          <button onClick={onClose} className="close-button">
+          <button onClick={onClose} className="close-button" disabled={isLoading}>
             <X size={20} />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="payment-form">
           {/* Реквизиты */}
-          <div className="payment-details-payment">
-            <p className="details-label-payment">O‘tkazma rekvizitlari:</p>
+          <div className="payment-details">
+            <p className="details-label">O'tkazma rekvizitlari:</p>
             <div className="card-number">
-              {cardLoading ? (
-                "Rekvizitlar yuklanmoqda..."
-              ) : (
-                `💳 ${cardNumber}`
-              )}
+              {cardInfo.cardNumber ? `💳 ${cardInfo.cardNumber}` : '💳 8600 1234 5678 9012'}
+            </div>
+            <div className="card-holder">
+              👤 {cardInfo.cardHolderName || 'ADMIN CARD'}
             </div>
           </div>
 
-          {/* Выбор суммы */}
-          <div className="amount-section">
-            <label className="section-label">To‘ldirish summasini kiriting::</label>
+          {/* Провайдер */}
+          <div className="form-group">
+            <label className="form-label">To'lov tizimi</label>
+            <select
+              value={provider}
+              onChange={(e) => setProvider(e.target.value)}
+              className="form-select"
+              disabled={isLoading}
+            >
+              <option value="Uzcard">Uzcard</option>
+              <option value="Humo">Humo</option>
+            </select>
+          </div>
+
+          {/* Сумма */}
+          <div className="form-group">
+            <label className="form-label">To'ldirish summasini kiriting</label>
             <input
               type="number"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              placeholder="500 000 UZS dan kiriting"
-              className="amount-input2"
-              min="500000"
-              step="1000"
+              className="form-input"
               required
-              disabled={loading}
+              disabled={isLoading}
             />
-            <div className="min-amount-hint">
-              💰 Minimal summa: <strong>500 000 UZS</strong>
-            </div>
-            
-            {/* Валидация суммы */}
-            {amount && Number(amount) < 500000 && (
-              <div className="error-message">
-                ❌ Summa kamida 500 000 UZS bo‘lishi kerak
-              </div>
-            )}
           </div>
 
-          {/* Загрузка файла */}
-          <div className="file-section">
-            <p className="file-warning-payment">
-              ⚠️ Pul o‘tkazilganidan so‘ng kvitansiyani (chekni) ALBATTA yuboring
+          {/* Файл */}
+          <div className="form-group">
+            <p className="file-warning">
+              ⚠️ Pul o'tkazilganidan so'ng kvitansiyani ALBATTA yuboring
             </p>
             <label className="file-upload">
-              <Upload className="upload-icon-payment" />
-              <span>{file ? file.name : "Kvitansiyani biriktiring"}</span>
-              <input 
-                type="file" 
+              <Upload className="upload-icon" />
+              <span>{file ? file.name : 'Kvitansiyani biriktiring'}</span>
+              <input
+                type="file"
                 onChange={(e) => setFile(e.target.files[0])}
                 accept="image/*,.pdf"
                 className="file-input"
                 required
-                disabled={loading}
+                disabled={isLoading}
               />
             </label>
           </div>
 
+          {/* Ошибка */}
+          {localError && (
+            <div className="error-message">
+              ❌ {localError}
+            </div>
+          )}
+
           {/* Кнопки */}
-          <div className="payment-buttons">
+          <div className="form-actions">
             <button 
               type="submit" 
-              className="submit-button-payment"
-              disabled={loading || Number(amount) < 500000}
+              className="btn-primary" 
+              disabled={isLoading || !file}
             >
-              {loading ? 'Yuborilmoqda...' : 'Men to‘ladim'}
+              {isLoading ? (
+                <span>
+                  <span className="spinner"></span> Yuborilmoqda...
+                </span>
+              ) : (
+                "Men to'ladim"
+              )}
             </button>
             <button 
               type="button" 
               onClick={onClose} 
-              className="cancel-button"
-              disabled={loading}
+              className="btn-secondary" 
+              disabled={isLoading}
             >
               Bekor qilish
             </button>

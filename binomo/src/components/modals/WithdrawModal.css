@@ -1,498 +1,434 @@
-/* WithdrawModal.css */
+/* src/components/ui/WithdrawModal.css */
+
+:root {
+  --color-bg-dark: rgb(20, 24, 27);
+  --color-border: rgba(148, 163, 184, 0.1);
+  --color-accent: rgb(204, 56, 255);
+  --color-background: rgb(11, 14, 18);
+  --color-surface: rgb(17, 21, 24);
+  --color-text: rgb(226, 232, 240);
+  --color-text-dim: rgb(148, 163, 184);
+  --color-success: rgb(34, 197, 94);
+  --color-error: rgb(239, 68, 68);
+  --color-warning: rgb(251, 191, 36);
+}
+
+/* ============================================= */
+/* MODAL OVERLAY */
+/* ============================================= */
 .withdraw-modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(8px);
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(12px);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 9999;
   padding: 1rem;
-  animation: modalFadeIn 0.3s ease-out;
+  animation: fadeIn 0.2s ease-out;
 }
 
-@keyframes modalFadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
+/* ============================================= */
+/* MODAL CONTENT */
+/* ============================================= */
 .withdraw-modal-content {
-  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-  border: 2px solid #ef4444;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: 16px;
-  padding: 1.5rem;
+  padding: 2rem;
   width: 100%;
-  max-width: 450px;
+  max-width: 480px;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-  animation: modalSlideIn 0.3s ease-out;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.3s ease-out;
 }
 
-@keyframes modalSlideIn {
+@keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(-20px) scale(0.95);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
 }
 
+/* ============================================= */
+/* HEADER */
+/* ============================================= */
 .withdraw-modal-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 0.75rem;
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  animation: headerSlideIn 0.4s ease-out 0.1s both;
+  border-bottom: 1px solid var(--color-border);
 }
 
-@keyframes headerSlideIn {
-  from {
-    opacity: 0;
-    transform: translateX(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+.back-button {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 0.5rem;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.back-button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--color-accent);
+}
+
+.back-button .rotate-180 {
+  transform: rotate(180deg);
 }
 
 .withdraw-modal-title {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  color: white;
+  gap: 0.75rem;
+  color: var(--color-text);
   font-size: 1.25rem;
   font-weight: 600;
   margin: 0;
   flex: 1;
-  justify-content: center;
 }
 
 .withdraw-modal-icon {
-  color: #ef4444;
-  animation: iconPulse 2s ease-in-out infinite;
-}
-
-@keyframes iconPulse {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.1);
-  }
-}
-
-.back-button {
-  background: none;
-  border: none;
-  color: #94a3b8;
-  cursor: pointer;
-  padding: 0.25rem;
-  border-radius: 4px;
-  transition: all 0.3s ease;
-  animation: backButtonAppear 0.5s ease-out 0.2s both;
-}
-
-@keyframes backButtonAppear {
-  from {
-    opacity: 0;
-    transform: translateX(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-.back-button:hover {
-  color: white;
-  background: rgba(255, 255, 255, 0.1);
-  transform: translateX(-2px);
+  color: var(--color-accent);
 }
 
 .close-button {
   background: none;
   border: none;
-  color: #94a3b8;
+  color: var(--color-text-dim);
   cursor: pointer;
-  padding: 0.25rem;
-  border-radius: 4px;
-  transition: all 0.3s ease;
-  animation: closeButtonAppear 0.5s ease-out 0.2s both;
+  padding: 0.5rem;
+  border-radius: 8px;
+  transition: all 0.2s;
 }
 
-@keyframes closeButtonAppear {
-  from {
-    opacity: 0;
-    transform: rotate(-90deg);
-  }
-  to {
-    opacity: 1;
-    transform: rotate(0);
-  }
+.close-button:hover:not(:disabled) {
+  color: var(--color-text);
+  background: rgba(255, 255, 255, 0.05);
 }
 
-.close-button:hover {
+/* ============================================= */
+/* BALANCE INFO CARD */
+/* ============================================= */
+.balance-info-card {
+  background: linear-gradient(135deg, var(--color-accent) 0%, rgb(122, 53, 203) 100%);
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+  text-align: center;
+}
+
+.balance-info-label {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+.balance-info-amount {
   color: white;
-  background: rgba(255, 255, 255, 0.1);
-  transform: rotate(90deg);
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
-/* Формы */
+/* ============================================= */
+/* COMMISSION INFO CARD */
+/* ============================================= */
+.commission-info-card {
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.commission-info-text {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  color: var(--color-text);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.info-icon {
+  color: var(--color-warning);
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+.commission-info-text strong {
+  color: var(--color-warning);
+}
+
+/* ============================================= */
+/* FORM */
+/* ============================================= */
 .withdraw-form,
 .commission-form {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  animation: formAppear 0.4s ease-out 0.2s both;
-}
-
-@keyframes formAppear {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.min-amount-info {
-  background: rgba(255, 193, 7, 0.1);
-  border: 1px solid rgba(255, 193, 7, 0.3);
-  border-radius: 12px;
-  padding: 1rem;
-  text-align: center;
-  animation: infoSlideUp 0.4s ease-out 0.3s both;
-}
-
-@keyframes infoSlideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  gap: 1.25rem;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  animation: formGroupAppear 0.4s ease-out 0.4s both;
-}
-
-@keyframes formGroupAppear {
-  from {
-    opacity: 0;
-    transform: translateX(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
 }
 
 .form-label {
-  color: #e2e8f0;
+  color: var(--color-text);
+  font-size: 0.875rem;
   font-weight: 500;
-  font-size: 0.9rem;
 }
 
 .form-input {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
-  color: white;
-  padding: 0.75rem;
-  font-size: 1rem;
-  transition: all 0.3s ease;
+  width: 100%;
+  padding: 0.875rem 1rem;
+  background: var(--color-bg-dark);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  color: var(--color-text);
+  font-size: 0.9375rem;
+  transition: all 0.2s;
 }
 
 .form-input:focus {
   outline: none;
-  border-color: #ef4444;
-  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
-  transform: scale(1.02);
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(204, 56, 255, 0.1);
 }
 
-/* Commission Form Styles */
-.commission-info {
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  border-radius: 12px;
-  padding: 1rem;
-  text-align: center;
-  animation: commissionInfoAppear 0.4s ease-out 0.3s both;
+.form-input::placeholder {
+  color: var(--color-text-dim);
 }
 
-@keyframes commissionInfoAppear {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+.min-amount-hint {
+  color: var(--color-text-dim);
+  font-size: 0.8125rem;
+  margin-top: 0.25rem;
 }
 
+/* ============================================= */
+/* CALCULATION PREVIEW */
+/* ============================================= */
+.calculation-preview,
 .calculation-section {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
+  background: var(--color-bg-dark);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
   padding: 1rem;
-  margin: 1rem 0;
-  animation: calculationAppear 0.4s ease-out 0.4s both;
-}
-
-@keyframes calculationAppear {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 .calculation-row {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 0.5rem;
-  padding: 0.25rem 0;
-  animation: calculationRowSlide 0.3s ease-out both;
-}
-
-.calculation-row:nth-child(1) { animation-delay: 0.5s; }
-.calculation-row:nth-child(2) { animation-delay: 0.55s; }
-.calculation-row:nth-child(3) { animation-delay: 0.6s; }
-
-@keyframes calculationRowSlide {
-  from {
-    opacity: 0;
-    transform: translateX(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+  padding: 0.625rem 0;
+  color: var(--color-text-dim);
+  font-size: 0.9375rem;
 }
 
 .calculation-row.total {
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  padding-top: 0.75rem;
-  font-weight: bold;
-  color: #ef4444;
-  font-size: 1.1rem;
+  border-top: 1px solid var(--color-border);
+  margin-top: 0.5rem;
+  padding-top: 0.875rem;
+  color: var(--color-text);
+  font-weight: 600;
+  font-size: 1rem;
 }
 
-.payment-details {
+.balance-check {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 500;
+  font-size: 0.9375rem;
+}
+
+.balance-check.sufficient {
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--color-success);
+}
+
+.balance-check.insufficient {
   background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: var(--color-error);
+}
+
+/* ============================================= */
+/* PAYMENT DETAILS */
+/* ============================================= */
+.payment-details {
+  background: rgba(204, 56, 255, 0.08);
+  border: 1px solid rgba(204, 56, 255, 0.2);
   border-radius: 12px;
   padding: 1rem;
   text-align: center;
-  animation: paymentDetailsAppear 0.4s ease-out 0.5s both;
-}
-
-@keyframes paymentDetailsAppear {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
 }
 
 .details-label {
-  color: #ef4444;
-  font-size: 0.9rem;
+  color: var(--color-accent);
+  font-size: 0.875rem;
   font-weight: 600;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
 }
 
 .card-number {
-  font-family: monospace;
-  font-size: 1.1rem;
-  font-weight: bold;
-  color: white;
+  font-family: 'Courier New', monospace;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text);
   margin: 0.5rem 0;
-  animation: cardNumberGlow 2s ease-in-out infinite;
 }
 
-@keyframes cardNumberGlow {
-  0%, 100% {
-    text-shadow: 0 0 5px rgba(239, 68, 68, 0.5);
-  }
-  50% {
-    text-shadow: 0 0 15px rgba(239, 68, 68, 0.8);
-  }
+.card-holder {
+  color: var(--color-text-dim);
+  font-size: 0.9rem;
 }
 
-.file-section {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  animation: fileSectionAppear 0.4s ease-out 0.6s both;
-}
-
-@keyframes fileSectionAppear {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
+/* ============================================= */
+/* FILE UPLOAD */
+/* ============================================= */
 .file-warning {
-  color: #f87171;
-  font-size: 0.8rem;
+  color: var(--color-error);
+  font-size: 0.8125rem;
   font-weight: 500;
-  margin: 0;
-  animation: warningPulse 2s ease-in-out infinite;
-}
-
-@keyframes warningPulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.7;
-  }
+  margin-bottom: 0.5rem;
 }
 
 .file-upload {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  background: rgba(255, 255, 255, 0.1);
-  border: 2px dashed rgba(255, 255, 255, 0.3);
-  border-radius: 8px;
+  gap: 0.75rem;
+  background: var(--color-bg-dark);
+  border: 2px dashed var(--color-border);
+  border-radius: 10px;
   padding: 1rem;
-  color: #cbd5e1;
+  color: var(--color-text-dim);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s;
   text-align: center;
   justify-content: center;
-  animation: fileUploadPulse 3s ease-in-out infinite;
-}
-
-@keyframes fileUploadPulse {
-  0%, 100% {
-    border-color: rgba(255, 255, 255, 0.3);
-  }
-  50% {
-    border-color: #ef4444;
-  }
 }
 
 .file-upload:hover {
-  border-color: #ef4444;
-  color: white;
-  transform: scale(1.02);
-  animation: none;
+  border-color: var(--color-accent);
+  color: var(--color-text);
+  background: rgba(204, 56, 255, 0.05);
 }
 
 .upload-icon {
-  color: #ef4444;
+  color: var(--color-accent);
+  flex-shrink: 0;
 }
 
 .file-input {
   display: none;
 }
 
-/* Кнопки */
-.submit-button {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+/* ============================================= */
+/* BUTTONS */
+/* ============================================= */
+.btn-primary {
+  width: 100%;
+  padding: 1rem;
+  background: linear-gradient(135deg, var(--color-accent) 0%, rgb(168, 85, 247) 100%);
   color: white;
   border: none;
   border-radius: 10px;
-  padding: 1rem;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-  animation: buttonAppear 0.4s ease-out 0.7s both;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
-@keyframes buttonAppear {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.submit-button::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.5s;
-}
-
-.submit-button:hover::before {
-  left: 100%;
-}
-
-.submit-button:hover {
+.btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+  box-shadow: 0 10px 30px rgba(204, 56, 255, 0.4);
 }
 
-.submit-button:disabled {
-  background: #64748b;
+.btn-primary:disabled {
+  opacity: 0.5;
   cursor: not-allowed;
   transform: none;
-  box-shadow: none;
 }
 
-.submit-button:disabled:hover::before {
-  left: -100%;
+/* ============================================= */
+/* ERROR MESSAGE */
+/* ============================================= */
+.error-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  color: var(--color-error);
+  font-size: 0.875rem;
+  line-height: 1.5;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
+.error-message svg {
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+/* ============================================= */
+/* SPINNER */
+/* ============================================= */
+.spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================= */
+/* RESPONSIVE */
+/* ============================================= */
+@media (max-width: 640px) {
   .withdraw-modal-content {
-    margin: 1rem;
-    padding: 1.25rem;
+    padding: 1.5rem;
+    max-width: 100%;
   }
-  
+
+  .balance-info-amount {
+    font-size: 1.75rem;
+  }
+
   .withdraw-modal-title {
-    font-size: 1.1rem;
-  }
-  
-  .withdraw-modal-header {
-    gap: 0.5rem;
+    font-size: 1.125rem;
   }
 }

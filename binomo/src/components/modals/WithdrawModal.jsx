@@ -1,90 +1,62 @@
-import React, { useState, useEffect } from 'react';
-import { X, CreditCard, Upload, ArrowLeft } from 'lucide-react';
+import React, { useState, useEffect, useContext } from 'react';
+import { useSelector } from 'react-redux';
+import { CreditCard, X, Upload, AlertCircle, ChevronRight } from 'lucide-react';
+import { useWithdrawMutation, usePayCommissionMutation } from '../../features/payment/paymentApi';
+import { UserContext } from "../../features/context/UserContext"
+
 import './WithdrawModal.css';
+
 import { CONFIG_API_BASE_URL } from '../../config/constants';
 
 const API_BASE_URL = CONFIG_API_BASE_URL;
 
-const WithdrawModal = ({ isOpen, onClose }) => {
+
+function WithdrawModal({ isOpen, onClose }) {
+  const [withdraw, { isLoading: isWithdrawing }] = useWithdrawMutation();
+  const [payCommission, { isLoading: isPayingCommission }] = usePayCommissionMutation();
+
+  const { cardInfo } = useSelector((state) => state.payment);
+
   const [step, setStep] = useState(1);
-  const [amount, setAmount] = useState("");
-  const [cardNumber, setCardNumber] = useState("");
-  const [cardHolderName, setCardHolderName] = useState("");
-  const [fullName, setFullName] = useState("");
+  const [amount, setAmount] = useState('');
+  const [cardNumber, setCardNumber] = useState('');
+  const [fullName, setFullName] = useState('');
   const [file, setFile] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [cardLoading, setCardLoading] = useState(true);
-  const [userBalance, setUserBalance] = useState(0); // Добавляем состояние для баланса
-  const [isCommissionPending, setIsCommissionPending] = useState(false);
-  const [isWithdrawPending, setIsWithdrawPending] = useState(false);
-  const [pendingWithdrawAmount, setPendingWithdrawAmount] = useState(0);
-  const [commissionAmount, setCommissionAmount] = useState(0);
+  const { userBalance, setUserBalance } = useContext(UserContext);
+  const [localError, setLocalError] = useState(null);
+  
+  const [pendingWithdrawal, setPendingWithdrawal] = useState(null);
 
+  const safeAmount = Number(amount) || 0;
+  const commission = safeAmount * 0.15;
+  const totalRequired = safeAmount + commission;
 
-  // Загружаем баланс при открытии модального окна
   useEffect(() => {
     if (isOpen) {
       fetchUserBalance();
-      fetchCardNumber();
+      
+      // Check for pending withdrawal
+      const pending = localStorage.getItem('pendingWithdraw');
+      if (pending) {
+        try {
+          const data = JSON.parse(pending);
+          setPendingWithdrawal(data);
+          setAmount(data.amount);
+          setCardNumber(data.cardNumber);
+          setFullName(data.fullName);
+          setStep(2);
+        } catch (err) {
+          console.error('Failed to parse pending withdrawal:', err);
+        }
+      }
     }
   }, [isOpen]);
-
-  useEffect(() => {
-    const pendingWithdraw = localStorage.getItem("pendingWithdraw");
-    if (pendingWithdraw) {
-      setStep(2);
-    }
-  }, []);
-
-
-  useEffect(() => {
-    const savedWithdraw = localStorage.getItem("pendingWithdraw");
-    if (savedWithdraw) {
-      const parsed = JSON.parse(savedWithdraw);
-      if (parsed.amount) {
-        const amountNum = Number(parsed.amount);
-        setAmount(amountNum);
-        setCommissionAmount(amountNum * 0.15);
-      }
-    }
-  }, []);
-
-
-  const fetchCardNumber = async () => {
-    try {
-      setCardLoading(true);
-      const token = localStorage.getItem('access_token');
-      const response = await fetch(`${API_BASE_URL}/api/user/card_number`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setCardNumber(data.card_number);
-        setCardHolderName(data.card_holder_name);
-      } else {
-        //console.error('Ошибка при загрузке номера карты');
-        setCardNumber("8600 **** **** 1234"); // Fallback
-        setCardHolderName("Card Holder");
-      }
-    } catch (error) {
-      //console.error('Error fetching card number:', error);
-      setCardNumber("8600 **** **** 1234"); // Fallback
-      setCardHolderName("Card Holder");
-    } finally {
-      setCardLoading(false);
-    }
-  };
 
   const fetchUserBalance = async () => {
     try {
       const token = localStorage.getItem('access_token');
       const response = await fetch(`${API_BASE_URL}/api/user/get_balance`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
+        headers: { 'Authorization': `Bearer ${token}` },
       });
 
       if (response.ok) {
@@ -96,226 +68,200 @@ const WithdrawModal = ({ isOpen, onClose }) => {
     }
   };
 
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
-  };
-
-  if (!isOpen) return null;
-
-  const updateBalanceOnBackend = async (userBalanceSet) => {
-    try {
-      const token = localStorage.getItem("access_token");
-      
-      /*console.log('📤 Отправка на backend:', {
-        amount_change: userBalanceSet.toFixed(2),
-      });*/
-
-      const response = await fetch(`${API_BASE_URL}/api/user/update_balance`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          amount_change: userBalanceSet,
-        }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        //console.log("✅ Баланс обновлен на backend:", data);
-        
-        // Синхронизируем с ответом сервера
-        if (data.balance !== undefined) {
-          setUserBalance(parseFloat(data.balance));
-          sessionStorage.setItem("balance", data.balance.toString());
-        }
-        
-        return data;
-      } else {
-        const errorText = await response.text();
-        console.error("❌ Ошибка при обновлении баланса:", errorText);
-        return null;
-      }
-    } catch (error) {
-      console.error("🚨 Ошибка обновления баланса:", error);
-      return null;
-    }
-  };
-
-  const handleStep1Submit = (e) => {
+  const handleStep1Submit = async (e) => {
     e.preventDefault();
+    setLocalError(null);
 
-    const withdrawAmount = parseFloat(amount);
-    //const totalAmount = withdrawAmount + (withdrawAmount * 0.15); // Сумма + комиссия
-    const totalAmount = withdrawAmount;
-    const newUserBalance = userBalance - withdrawAmount;
-    
-    // Проверки
-    if (withdrawAmount < 12000000) {
-      alert('Eng kam yechish summasi: 12,000,000 UZS');
+    if (totalRequired > userBalance) {
+      setLocalError(
+        `Balansda yetarli mablag' yo'q!\n` +
+        `Kerakli: ${totalRequired.toLocaleString()} USD (${safeAmount.toLocaleString()} + ${commission.toLocaleString()} komissiya)\n` +
+        `Sizning balansingiz: ${userBalance.toLocaleString()} USD`
+      );
       return;
     }
 
-    if (totalAmount > userBalance) {
-      alert(`Balansda mablag‘ yetarli emas!\n\So‘ralgan: ${withdrawAmount.toLocaleString()} UZS\nKomissiya: ${(withdrawAmount * 0.15).toLocaleString()} UZS\nJami: ${totalAmount.toLocaleString()} UZS\nSizning balansingiz: ${userBalance.toLocaleString()} UZS`);
-      return;
+    try {
+      const result = await withdraw({
+        amount: safeAmount,
+        cardNumber: cardNumber.trim(),
+        fullName: fullName.trim(),
+      }).unwrap();
+
+      console.log('✅ Withdrawal initiated:', result);
+
+      // Save pending withdrawal data
+      const pendingData = {
+        withdrawalId: result.withdrawalId,
+        amount: safeAmount,
+        commission: result.commission,
+        cardNumber: cardNumber,
+        fullName: fullName,
+      };
+      
+      localStorage.setItem('pendingWithdraw', JSON.stringify(pendingData));
+      setPendingWithdrawal(pendingData);
+
+      // Move to step 2
+      setStep(2);
+      
+      alert("✅ Yechish so'rovi yaratildi! Endi komissiyani to'lang.");
+    } catch (error) {
+      console.error('❌ Withdrawal error:', error);
+      
+      const errorMessage = 
+        error.data?.error || 
+        error.data?.title || 
+        error.error || 
+        "Noma'lum xatolik yuz berdi";
+      
+      setLocalError(errorMessage);
+      alert(`❌ Xatolik: ${errorMessage}`);
     }
-
-    const updatedAmountToWithdraw = userBalance; // Вся сумма баланса
-
-    updateBalanceOnBackend(newUserBalance);
-    setIsWithdrawPending(true);
-    setPendingWithdrawAmount(updatedAmountToWithdraw);
-    
-    localStorage.setItem("pendingWithdraw", JSON.stringify({
-      amount: updatedAmountToWithdraw,
-      cardNumber: cardNumber,
-      fullName: fullName
-    }));
-
-    //console.log(`💰 Списано ${updatedAmountToWithdraw.toLocaleString()} UZS для вывода`);
-
-    setStep(2);
   };
 
   const handleStep2Submit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setLocalError(null);
 
+    if (!file) {
+      setLocalError("Komissiya to'lovi kvitansiyasini biriktiring");
+      return;
+    }
+
+    if (!pendingWithdrawal) {
+      setLocalError("Pending withdrawal data not found");
+      return;
+    }
+
+    /*const formData = new FormData();
+    formData.append("WithdrawalId", pendingWithdrawal.withdrawalId);
+    formData.append("CommissionAmount", commission);
+    formData.append("receipt", file);*/
     try {
-      const token = localStorage.getItem('access_token');
-      const formData = new FormData();
+      //const result = await payCommission(formData).unwrap();
+
+      //console.log('✅ Commission paid:', result);
+
+      // Clear pending data
+      localStorage.removeItem('pendingWithdraw');
+      setPendingWithdrawal(null);
+
+      // Success
+      alert("✅ Komissiya to'landi! So'rovingiz ko'rib chiqilmoqda.");
       
-      formData.append('amount', amount); 
-      formData.append('card_number', cardNumber);
-      formData.append('full_name', fullName);
-
+      // Reset form
+      setStep(1);
+      setAmount('');
+      setCardNumber('');
+      setFullName('');
+      setFile(null);
       
+      // Refresh balance
+      await fetchUserBalance();
       
-      // Добавляем файл если он есть
-      if (file) {
-        formData.append('invoice_file', file);
-      }
-
-      // API запрос для вывода средств
-      const response = await fetch(`${API_BASE_URL}/api/user/send_withdraw_to_tg`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        body: formData
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        alert('Pul yechish so‘rovi yuborildi! Mablag‘ 30 daqiqa ichida o‘tkaziladi.');
-        // 🔹 НЕ ЗАКРЫВАЕМ МОДАЛКУ, оставляем окно комиссии открытым
-        onClose(); // 🔹 УБИРАЕМ эту строку
-        
-        // Сброс только части формы
-        // Сброс формы
-        setStep(1);
-        setAmount("");
-        setCardNumber("");
-        setFullName("");
-        setFile(null);
-
-        // 🔹 ЖДЕМ ПОДТВЕРЖДЕНИЯ ОПЛАТЫ ОТ АДМИНА
-        // Здесь можно добавить опрос сервера на статус оплаты
-      } else {
-        alert(data.message || 'Pul yechish so‘rovida xatolik');
-      }
+      onClose();
     } catch (error) {
-      console.error('Error:', error);
-        alert('Server bilan ulanishda xatolik');
-    } finally {
-      setLoading(false);
+      console.error('❌ Commission payment error:', error);
+      
+      const errorMessage = 
+        error.data?.error || 
+        error.data?.title || 
+        error.error || 
+        "Noma'lum xatolik yuz berdi";
+      
+      setLocalError(errorMessage);
+      alert(`❌ Xatolik: ${errorMessage}`);
     }
   };
 
-  const safeAmount = Number(amount) || 0;
-  // Рассчитываем комиссию 15% от суммы вывода
-  const commissionPercentage = 15;
-  const safeCommission = Math.round(safeAmount * (commissionPercentage / 100));
-  //const totalAmount = safeAmount + safeCommission; // Общая сумма к списанию (вывод + комиссия)
-      
+  const handleBack = () => {
+    setStep(1);
+    setFile(null);
+    setLocalError(null);
+  };
+
+  if (!isOpen) return null;
+
+  const isLoading = isWithdrawing || isPayingCommission;
+
   return (
     <div className="withdraw-modal-overlay" onClick={onClose}>
       <div className="withdraw-modal-content" onClick={(e) => e.stopPropagation()}>
+        {/* Header */}
         <div className="withdraw-modal-header">
-          {/*{step === 2 && (
-            <button className="back-button" onClick={() => setStep(1)}>
-              <ArrowLeft size={20} />
+          {step === 2 && (
+            <button className="back-button" onClick={handleBack} disabled={isLoading}>
+              <ChevronRight size={20} className="rotate-180" />
             </button>
-          )}*/}
+          )}
           <h2 className="withdraw-modal-title">
             <CreditCard className="withdraw-modal-icon" />
-            {step === 1 ? 'Pul yechish' : 'Komissiyani to‘lash'}
+            {step === 1 ? 'Pul yechish' : "Komissiyani to'lash"}
           </h2>
-          <button onClick={onClose} className="close-button">
+          <button onClick={onClose} className="close-button" disabled={isLoading}>
             <X size={20} />
           </button>
         </div>
 
+        {/* Step 1: Withdrawal Request */}
         {step === 1 ? (
           <form onSubmit={handleStep1Submit} className="withdraw-form">
-            <div className="balance-info">
-              💰 Sizning balansingiz: <strong>{userBalance.toLocaleString()} UZS</strong>
-            </div>
 
-            <div className="min-amount-info">
-              💸 Kiriting <strong>12,000,000 UZS</strong>
-            </div>
-
+            {/* Amount Input */}
             <div className="form-group">
-              <label className="form-label">Yechib olinadigan summa (UZS)</label>
+              <label className="form-label">Yechib olinadigan summa (USD)</label>
               <input
                 type="number"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                placeholder="12,000,000 dan kiriting"
                 className="form-input"
-                min="12000000"
-                step="1000"
                 required
+                disabled={isLoading}
               />
             </div>
 
-            {/* Информация о расчетах */}
-            {amount && parseFloat(amount) >= 12000000 && (
+            {/* Calculation Preview */}
+            {amount && (
               <div className="calculation-preview">
                 <div className="calculation-row">
                   <span>Yechib olinadigan summa:</span>
-                  <span>{parseFloat(amount).toLocaleString()} UZS</span>
+                  <span>{safeAmount.toLocaleString()} USD</span>
                 </div>
-                {/*<div className="calculation-row">
-                  <span>Комиссия (15%):</span>
-                  <span>{commissionAmount.toLocaleString()} UZS</span>
-                </div>*/}
+                <div className="calculation-row">
+                  <span>Komissiya (15%):</span>
+                  <span>{commission.toLocaleString()} USD</span>
+                </div>
                 <div className="calculation-row total">
-                  <span>Jami yechish summasi:</span>
-                  <span>{safeAmount.toLocaleString()} UZS</span>
+                  <span>Jami to'lov:</span>
+                  <span>{totalRequired.toLocaleString()} USD</span>
                 </div>
-                <div className={`balance-check ${safeAmount <= userBalance ? 'sufficient' : 'insufficient'}`}>
-                  {safeAmount <= userBalance ? '✅ Mablag‘ yetarli' : '❌ Mablag‘ yetarli emas'}
+                <div className={`balance-check ${totalRequired <= userBalance ? 'sufficient' : 'insufficient'}`}>
+                  {totalRequired <= userBalance ? (
+                    <span>✅ Mablag' yetarli</span>
+                  ) : (
+                    <span>❌ Mablag' yetarli emas</span>
+                  )}
                 </div>
               </div>
             )}
 
+            {/* Card Number */}
             <div className="form-group">
               <label className="form-label">Karta raqami</label>
               <input
                 type="text"
                 value={cardNumber}
                 onChange={(e) => setCardNumber(e.target.value)}
-                placeholder="0000 0000 0000 0000"
+                placeholder="8600 0000 0000 0000"
                 className="form-input"
+                maxLength="19"
                 required
+                disabled={isLoading}
               />
             </div>
 
+            {/* Full Name */}
             <div className="form-group">
               <label className="form-label">Ism va familiya</label>
               <input
@@ -325,68 +271,114 @@ const WithdrawModal = ({ isOpen, onClose }) => {
                 placeholder="Kartadagi ism va familiyani kiriting"
                 className="form-input"
                 required
+                disabled={isLoading}
               />
             </div>
 
-            <button 
-              type="submit" 
-              className="submit-button primary"
-              disabled={amount && safeAmount > userBalance}
+            {/* Error Message */}
+            {localError && (
+              <div className="error-message">
+                <AlertCircle size={16} />
+                <span>{localError}</span>
+              </div>
+            )}
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              className="btn-primary"
+              disabled={isLoading || !amount || totalRequired > userBalance}
             >
-              Davom etish
+              {isLoading ? (
+                <span>
+                  <span className="spinner"></span> Yuborilmoqda...
+                </span>
+              ) : (
+                'Davom etish'
+              )}
             </button>
           </form>
         ) : (
+          /* Step 2: Pay Commission */
           <form onSubmit={handleStep2Submit} className="commission-form">
-            {/*<div className="commission-info">
-              <p>Оплатите <strong>15% от суммы вывода</strong>, после этого средства поступят на ваш банковский счет в течении 30 минут</p>
-            </div>*/}
+            {/* Commission Info */}
+            <div className="commission-info-card">
+              <div className="commission-info-text">
+                <AlertCircle size={20} className="info-icon" />
+                <p>
+                  Komissiyani to'lash uchun quyidagi rekvizitlarga{' '}
+                  <strong>{commission.toLocaleString()} USD</strong> o'tkazing
+                </p>
+              </div>
+            </div>
 
+            {/* Calculation Summary */}
             <div className="calculation-section">
               <div className="calculation-row">
                 <span>Yechib olinadigan summa:</span>
-                <span>{safeAmount.toLocaleString()} UZS</span>
+                <span>{safeAmount.toLocaleString()} USD</span>
               </div>
               <div className="calculation-row">
                 <span>Komissiya (15%):</span>
-                <span>{safeCommission.toLocaleString()} UZS</span>
+                <span>{commission.toLocaleString()} USD</span>
               </div>
               <div className="calculation-row total">
-                <span>Komissiya uchun to‘lov:</span>
-                <span>{safeCommission.toLocaleString()} UZS</span>
+                <span>To'lash kerak:</span>
+                <span>{commission.toLocaleString()} USD</span>
               </div>
             </div>
 
-
+            {/* Payment Details */}
             <div className="payment-details">
-              <p className="details-label">Komissiyani to‘lash uchun rekvizitlar:</p>
+              <p className="details-label">Komissiyani to'lash uchun rekvizitlar:</p>
               <div className="card-number">
-                💳 Karta: {cardLoading ? "Yuklanmoqda..." : cardNumber}
+                💳 Karta: {cardInfo.cardNumber || '8600 1234 5678 9012'}
               </div>
               <div className="card-holder">
-                👤 Ega: {cardLoading ? "Yuklanmoqda..." : cardHolderName}
+                👤 Ega: {cardInfo.cardHolderName || 'ADMIN CARD'}
               </div>
             </div>
 
-            <div className="file-section">
+            {/* File Upload */}
+            <div className="form-group">
               <p className="file-warning">
-                ⚠️ Komissiyani to‘laganingizdan so‘ng kvitansiyani (chekni) ALBATTA yuboring
+                ⚠️ Komissiyani to'laganingizdan so'ng kvitansiyani (chekni) ALBATTA yuboring
               </p>
               <label className="file-upload">
                 <Upload className="upload-icon" />
-                <span>{file ? file.name : "Komissiya to‘lovi kvitansiyasini biriktiring"}</span>
-                <input 
-                  type="file" 
-                  onChange={handleFileChange}
+                <span>{file ? file.name : "Komissiya to'lovi kvitansiyasini biriktiring"}</span>
+                <input
+                  type="file"
+                  onChange={(e) => setFile(e.target.files[0])}
                   accept="image/*,.pdf"
                   className="file-input"
                   required
+                  disabled={isLoading}
                 />
               </label>
             </div>
 
-            <button type="submit" className="submit-button primary" disabled={loading}>
-              {loading ? 'Yuborilmoqda...' : 'Komissiyani to‘lash va yechib olish'}
+            {/* Error Message */}
+            {localError && (
+              <div className="error-message">
+                <AlertCircle size={16} />
+                <span>{localError}</span>
+              </div>
+            )}
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              className="btn-primary"
+              disabled={isLoading || !file}
+            >
+              {isLoading ? (
+                <span>
+                  <span className="spinner"></span> Yuborilmoqda...
+                </span>
+              ) : (
+                "Komissiyani to'lash"
+              )}
             </button>
           </form>
         )}

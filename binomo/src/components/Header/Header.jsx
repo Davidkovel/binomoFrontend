@@ -31,6 +31,7 @@ const Header = () => {
     { name: "Portfolio", path: "/portfolio"},
     { name: "Referral", path: "/referral"},
     { name: "Earn", path: "/staking"},
+    { name: "Balance", path: "/balance"},
   ]
 
   useEffect(() => {
