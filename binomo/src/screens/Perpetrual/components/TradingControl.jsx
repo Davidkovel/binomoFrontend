@@ -258,13 +258,9 @@ const TradingControl = () => {
                     <span>{(amount * leverage || 0).toFixed(2)} USDT</span>
                 </div>
                 <div className={styles.marginRow}>
-                    <span>Liquidation Price For Long position:</span>
-                    <span className={styles.liquidationPriceLong}>
-                        {liquidationPriceLong.toFixed(4)} USDT
-                    </span>
-                    <span>Liquidation Price For Short position:</span>
-                    <span className={styles.liquidationPriceShort}>
-                        {liquidationPriceShort.toFixed(4)} USDT
+                    <span>Liquidation:</span>
+                    <span>
+                        {liquidationPriceLong.toFixed(4)} / {liquidationPriceShort.toFixed(4)}
                     </span>
                 </div>
             </div>

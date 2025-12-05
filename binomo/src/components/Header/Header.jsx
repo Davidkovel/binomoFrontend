@@ -153,11 +153,6 @@ const Header = () => {
                 </span>
               </div>
 
-              {/* Settings Button */}
-              <button className={styles.iconBtn}>
-                <Settings size={20} />
-              </button>
-
               {/* Disconnect Button */}
               <button className={styles.disconnectBtn} onClick={handleLogout}>
                 <LogOut size={18} />

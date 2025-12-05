@@ -2,6 +2,7 @@
 .orderBookContainer {
   background-color: rgb(20, 24, 27);
   border-radius: 16px;
+  height: 100%;
 }
 
 /* Order Book Section */
@@ -75,7 +76,7 @@
 /* Order Rows */
 .asksSection,
 .bidsSection {
-  max-height: 300px;
+  max-height: 350px;
   overflow-y: auto;
 }
 
