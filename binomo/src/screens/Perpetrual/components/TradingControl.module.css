@@ -296,6 +296,19 @@
   font-size: 20px;
 }
 
+.marginInfo {
+  text-align: center;
+  font-size: 12px;
+  color: white;
+}
+
+.liquidationPriceLong {
+}
+
+.liquidationPriceShort {
+  font-size: 14px;
+}
+
 /* Risk Warning */
 .riskWarning {
   text-align: center;

@@ -48,6 +48,10 @@ const MainScreen = () => {
     navigate('/trading');
   };
 
+  const handleRegister = () => {
+    navigate('/register');
+  }
+
   return (
     <div className="main-screen">
       {/* Animated Background */}
@@ -61,7 +65,7 @@ const MainScreen = () => {
       <nav className="navbar">
         <div className="logo">
           <div className="logo-icon">🚀</div>
-          <span className="logo-text">CryptoDEX</span>
+          <span className="logo-text">XGeniusDEX</span>
         </div>
         <ul className="nav-links">
           <li><a href="#trade">Trade</a></li>
@@ -69,24 +73,21 @@ const MainScreen = () => {
           <li><a href="#stake">Stake</a></li>
           <li><a href="#analytics">Analytics</a></li>
         </ul>
-        <button className="btn-connect">Connect Wallet</button>
+        <button className="btn-connect" onClick={handleRegister}>Connect Wallet</button>
       </nav>
 
       {/* Hero Section */}
       <div className="container">
         <section className="hero">
-          <div className="badge">🚀 New: Cross-chain swaps now available</div>
           <h1>
-            <span className="gradient-text">Trade Crypto</span><br />
-            At Light Speed
+            Zero Fee Perpetuals with Privacy
           </h1>
           <p className="hero-description">
-            The most advanced decentralized exchange. Swap, earn, and build on the leading DeFi platform trusted by millions.
+            Trade 250+ markets on a super exchange with zero-fees, better-than-CEX liquidity, and institutional-grade privacy, all built on a blazingly fast blockchain.
           </p>
           <div className="hero-buttons">
             <button className="btn-primary" onClick={handleTrade}>
-              Launch dApp
-              <span>→</span>
+              Trade on XgeniousDex
             </button>
             <button className="btn-secondary">Learn More</button>
           </div>
@@ -125,6 +126,11 @@ const MainScreen = () => {
               </div>
             ))}
           </div>
+        </section>
+
+        <section className='layer2-info'>
+          <h2>A Layer 2 Designed For Extreme Scale (DimeVM)</h2>
+          <p>Build without compromise on the fastest and most performant Layer 2 Blockchain in the world</p>
         </section>
 
         {/* CTA Section */}
@@ -179,7 +185,7 @@ const MainScreen = () => {
             </div>
           </div>
           <div className="footer-bottom">
-            <p>© 2025 CryptoDEX. All rights reserved.</p>
+            <p>© 2025 XgeniousDex. All rights reserved.</p>
           </div>
         </div>
       </footer>

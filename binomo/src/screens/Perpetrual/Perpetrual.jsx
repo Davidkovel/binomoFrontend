@@ -7,6 +7,7 @@ import { useAuth } from '../../features/hooks/useAuth'
 
 
 import PairToolbar from './components/PairToolbar'
+import FooterConnectionWs from './components/FooterConnectionWs';
 import TradingChart from '../../components/TradingCharts/TradingChart'
 import TradingGlass from '../../components/TradingGlass/TradingGlass';
 import TradingControls from './components/TradingControl';
@@ -259,6 +260,8 @@ export default function PerpetrualTradingPlatform() {
           </div>
         </div>
       </div>
+
+      <FooterConnectionWs></FooterConnectionWs>
     </div>
   );
 }

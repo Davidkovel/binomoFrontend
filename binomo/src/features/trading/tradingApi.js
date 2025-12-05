@@ -68,7 +68,7 @@ export const tradingApi = createApi({
       query: () => '/positions/active',
       providesTags: ['ActivePositions'],
       // Кэшируем на 10 секунд
-      keepUnusedDataFor: 10,
+      //keepUnusedDataFor: 10,
     }),
     
     // Get Position by ID

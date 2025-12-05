@@ -21,7 +21,7 @@ const TradingControl = () => {
     const [openPosition, { isLoading: isOpening }] = useOpenPositionMutation();
     const [openLimitOrder, { isLoading: isOpeningLimit }] = useOpenLimitOrderMutation();
 
-    const leverageOptions = [1, 2, 5, 10, 25, 50, 75, 100, 900];
+    const leverageOptions = [1, 2, 5, 10, 25, 50, 75, 100, 125];
     
     const currentPrice = livePrices[selectedPair]?.price;
 
@@ -39,8 +39,11 @@ const TradingControl = () => {
         }
     };
 
-    const liquidationPrice = currentPrice ? 
+    const liquidationPriceLong = currentPrice ? 
         calculateLiquidationPrice('Long', currentPrice, leverage) : 0;
+
+    const liquidationPriceShort = currentPrice ? 
+        calculateLiquidationPrice('Short', currentPrice, leverage) : 0;
 
     const handleLeverageChange = (value) => {
         setLeverage(Math.max(1, Math.min(1000, value)));
@@ -209,7 +212,7 @@ const TradingControl = () => {
     
             {/* Amount Percentage Buttons */}
             <div className={styles.percentageButtons}>
-                {[25, 50, 75, 100].map((percent) => (
+                {[25, 50, 75, 100, 125].map((percent) => (
                     <button 
                         key={percent} 
                         className={styles.percentBtn}
@@ -255,9 +258,13 @@ const TradingControl = () => {
                     <span>{(amount * leverage || 0).toFixed(2)} USDT</span>
                 </div>
                 <div className={styles.marginRow}>
-                    <span>Liquidation Price:</span>
-                    <span className={styles.liquidationPrice}>
-                        {liquidationPrice.toFixed(4)} USDT
+                    <span>Liquidation Price For Long position:</span>
+                    <span className={styles.liquidationPriceLong}>
+                        {liquidationPriceLong.toFixed(4)} USDT
+                    </span>
+                    <span>Liquidation Price For Short position:</span>
+                    <span className={styles.liquidationPriceShort}>
+                        {liquidationPriceShort.toFixed(4)} USDT
                     </span>
                 </div>
             </div>

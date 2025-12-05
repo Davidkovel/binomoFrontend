@@ -94,91 +94,91 @@ export default function BalancePage() {
 
     return (
         <div className="balance-page">
-        {/* Header */}
-        <header className="balance-header">
-            <button className="back-btn" onClick={() => navigate('/trading')}>
-            <ArrowLeft size={24} />
-            </button>
-            <h1 className="balance-title">Balans</h1>
-        </header>
+            {/* Header */}
+            <header className="balance-header">
+                <button className="back-btn" onClick={() => navigate('/trading')}>
+                <ArrowLeft size={24} />
+                </button>
+                <h1 className="balance-title">Balans</h1>
+            </header>
 
-        {/* User Info Section */}
-        <div className="user-info-section">
-        <div className="user-avatar-name">
-            <div className="user-avatar">
-                {userName.charAt(0).toUpperCase()}
+            {/* User Info Section */}
+            <div className="user-info-section">
+            <div className="user-avatar-name">
+                <div className="user-avatar">
+                    {userName.charAt(0).toUpperCase()}
+                </div>
+                <div className="user-details">
+                    <div className="user-name-display">{userName}</div>
+                    {userEmail && <div className="user-email">{userEmail}</div>}
+                </div>
             </div>
-            <div className="user-details">
-                <div className="user-name-display">{userName}</div>
-                {userEmail && <div className="user-email">{userEmail}</div>}
+            
+            <div className="info-row">
+                <div className="account-type-container">
+                <div className="account-type-label">Hisob turi</div>
+                <div className="account-type-badge">Standart</div>
+                </div>
+
+                <div className="time-container">
+                <Clock size={16} className="clock-icon" />
+                <span className="time-label">UTC:</span>
+                <span className="time-value">{getUTCTime()}</span>
+                </div>
             </div>
-        </div>
-        
-        <div className="info-row">
-            <div className="account-type-container">
-            <div className="account-type-label">Hisob turi</div>
-            <div className="account-type-badge">Standart</div>
             </div>
 
-            <div className="time-container">
-            <Clock size={16} className="clock-icon" />
-            <span className="time-label">UTC:</span>
-            <span className="time-value">{getUTCTime()}</span>
+            {/* Action Buttons */}
+            <div className="action-buttons">
+                <button 
+                    className={`action-btn deposit-action ${activeTab === 'deposit' ? 'active' : ''}`}
+                    onClick={() => {
+                        setActiveTab('deposit');
+                        setIsPaymentModalOpen(true); // Открываем PaymentModal
+                    }}
+                >
+                    Hisobni to‘ldirish
+                </button>
+                <button 
+                    className={`action-btn withdraw-action ${activeTab === 'withdraw' ? 'active' : ''}`}
+                    onClick={() => {
+                        const positions = JSON.parse(sessionStorage.getItem('trading_positions')) || [];
+                        if (positions.length > 0) {
+                            alert('❌ Ochilgan pozitsiyalar mavjud bo‘lsa, pul yechish mumkin emas!');
+                            return;
+                        }
+                        setActiveTab('withdraw');
+                        setIsWithdrawModalOpen(true); // Открываем WithdrawModal
+                    }}
+                >
+                    Yechib olish
+                </button>
             </div>
-        </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="action-buttons">
-            <button 
-                className={`action-btn deposit-action ${activeTab === 'deposit' ? 'active' : ''}`}
-                onClick={() => {
-                    setActiveTab('deposit');
-                    setIsPaymentModalOpen(true); // Открываем PaymentModal
-                }}
-            >
-                Hisobni to‘ldirish
-            </button>
-            <button 
-                className={`action-btn withdraw-action ${activeTab === 'withdraw' ? 'active' : ''}`}
-                onClick={() => {
-                    const positions = JSON.parse(sessionStorage.getItem('trading_positions')) || [];
-                    if (positions.length > 0) {
-                        alert('❌ Ochilgan pozitsiyalar mavjud bo‘lsa, pul yechish mumkin emas!');
-                        return;
-                    }
-                    setActiveTab('withdraw');
-                    setIsWithdrawModalOpen(true); // Открываем WithdrawModal
-                }}
-            >
-                Yechib olish
-            </button>
-        </div>
 
 
-        {/* Footer */}
-        <footer className="balance-footer">
-            <button className="footer-btn support-btn">
-            <MessageCircle size={20} />
-            <span>24/7 Qo‘llab-quvvatlash</span>
-            </button>
-            <button className="footer-btn logout-footer-btn" onClick={handleLogout}>
-            <LogOut size={20} />
-            <span>Chiqish</span>
-            </button>
-        </footer>
+            {/* Footer */}
+            <footer className="balance-footer">
+                <button className="footer-btn support-btn">
+                <MessageCircle size={20} />
+                <span>24/7 Qo‘llab-quvvatlash</span>
+                </button>
+                <button className="footer-btn logout-footer-btn" onClick={handleLogout}>
+                <LogOut size={20} />
+                <span>Chiqish</span>
+                </button>
+            </footer>
 
-        {/* Payment Modal - для пополнения */}
-        <PaymentModal 
-            isOpen={isPaymentModalOpen}
-            onClose={() => setIsPaymentModalOpen(false)}
-        />
+            {/* Payment Modal - для пополнения */}
+            <PaymentModal 
+                isOpen={isPaymentModalOpen}
+                onClose={() => setIsPaymentModalOpen(false)}
+            />
 
-        {/* Withdraw Modal - для вывода */}
-        <WithdrawModal 
-            isOpen={isWithdrawModalOpen}
-            onClose={() => setIsWithdrawModalOpen(false)}
-        />
+            {/* Withdraw Modal - для вывода */}
+            <WithdrawModal 
+                isOpen={isWithdrawModalOpen}
+                onClose={() => setIsWithdrawModalOpen(false)}
+            />
         </div>
   );
 }

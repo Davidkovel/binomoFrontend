@@ -1,0 +1,49 @@
+/* Компактные стили */
+.compactContainer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+}
+
+.compactStatus {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: white;
+  border-radius: 16px;
+  padding: 4px 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.statusCircle {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.valuesRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.statusText {
+  font-weight: 600;
+  color: #10b981;
+}
+
+.ping {
+  color: #3b82f6;
+  font-weight: 600;
+}
+
+.fps {
+  color: #8b5cf6;
+  font-weight: 600;
+}
+
+.separator {
+  color: #d1d5db;
+}
