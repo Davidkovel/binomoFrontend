@@ -260,7 +260,6 @@ export default function PerpetrualTradingPlatform() {
           </div>
         </div>
       </div>
-
       <FooterConnectionWs></FooterConnectionWs>
     </div>
   );

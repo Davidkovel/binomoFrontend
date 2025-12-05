@@ -68,7 +68,7 @@ const MainScreen = () => {
           <span className="logo-text">XGeniusDEX</span>
         </div>
         <ul className="nav-links">
-          <li><a href="#trade">Trade</a></li>
+          <li><a href="#trade" onClick={handleTrade}>Trade</a></li>
           <li><a href="#pools">Pools</a></li>
           <li><a href="#stake">Stake</a></li>
           <li><a href="#analytics">Analytics</a></li>
