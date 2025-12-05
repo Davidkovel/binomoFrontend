@@ -199,7 +199,7 @@
   letter-spacing: 0.3px;
 }
 
-.form-input {
+.form-input-auth {
   background: rgba(51, 51, 71, 0.6);
   border: 2px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
@@ -210,7 +210,7 @@
   font-family: inherit;
 }
 
-.form-input:focus {
+.form-input-auth:focus {
   outline: none;
   border-color: #10b981;
   background: rgba(51, 51, 71, 0.8);

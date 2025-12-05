@@ -100,7 +100,7 @@ export default function Register() {
       <div className="auth-card">
         <div className="auth-header">
           <div className="logo-container">
-            <TrendingUp size={40} className="logo-icon" />
+            <TrendingUp size={40} className="logo-icon-auth" />
           </div>
           <h1 className="auth-title">Hisob yaratish</h1>
           <p className="auth-subtitle">
@@ -126,7 +126,7 @@ export default function Register() {
               name="name"
               value={formData.name}
               onChange={handleInputChange}
-              className="form-input"
+              className="form-input-auth"
               placeholder="To‘liq ismingizni kiriting"
               required
             />
@@ -142,7 +142,7 @@ export default function Register() {
               name="email"
               value={formData.email}
               onChange={handleInputChange}
-              className="form-input"
+              className="form-input-auth"
               placeholder="Email manzilingizni kiriting"
               required
             />
@@ -158,7 +158,7 @@ export default function Register() {
               name="password"
               value={formData.password}
               onChange={handleInputChange}
-              className="form-input"
+              className="form-input-auth"
               placeholder="Parol yarating (kamida 6 ta belgi)"
               required
               minLength={6}

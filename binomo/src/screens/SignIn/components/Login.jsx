@@ -90,7 +90,7 @@ export default function Login() {
       <div className="auth-card">
         <div className="auth-header">
           <div className="logo-container">
-            <TrendingUp size={40} className="logo-icon" />
+            <TrendingUp size={40} className="logo-icon-auth" />
           </div>
           <h1 className="auth-title">Qaytganingiz bilan tabriklaymiz</h1>
           <p className="auth-subtitle">
@@ -116,7 +116,7 @@ export default function Login() {
               name="email"
               value={formData.email}
               onChange={handleInputChange}
-              className="form-input"
+              className="form-input-auth"
               placeholder="Email manzilingizni kiriting"
               required
             />
@@ -132,7 +132,7 @@ export default function Login() {
               name="password"
               value={formData.password}
               onChange={handleInputChange}
-              className="form-input"
+              className="form-input-auth"
               placeholder="Parolingizni kiriting"
               required
             />
