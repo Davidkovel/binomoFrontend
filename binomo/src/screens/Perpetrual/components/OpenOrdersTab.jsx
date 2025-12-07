@@ -141,14 +141,6 @@ const OpenOrdersTab = () => {
     <div className={styles.container}>
       <div className={styles.ordersContainer}>
         <div className={styles.ordersHeader}>
-          <h3>Ochiq Orderlar ({activeOrders.length})</h3>
-          <button 
-            className={styles.refreshButton}
-            onClick={refetch}
-            disabled={isLoading}
-          >
-            {isLoading ? 'Refreshing...' : 'Refresh'}
-          </button>
         </div>
 
         <div className={styles.ordersTable}>

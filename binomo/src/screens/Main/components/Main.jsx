@@ -107,7 +107,7 @@ const MainScreen = () => {
         {/* Features Section */}
         <section className="features">
           <div className="features-header">
-            <h2>Why Choose <span className="gradient-text">CryptoDEX</span></h2>
+            <h2>Why Choose <span className="gradient-text">XGeniousDex</span></h2>
             <p>Built for traders who demand the best</p>
           </div>
 
@@ -153,7 +153,7 @@ const MainScreen = () => {
             <div className="footer-section">
               <div className="logo">
                 <div className="logo-icon">🚀</div>
-                <span className="logo-text">CryptoDEX</span>
+                <span className="logo-text">XGeniousDex</span>
               </div>
               <p className="footer-description">
                 The future of decentralized trading
