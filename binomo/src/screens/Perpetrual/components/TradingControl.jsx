@@ -59,13 +59,13 @@ const TradingControl = () => {
 
     const executeTrade = async (type) => {
         if (!amount || parseFloat(amount) <= 0) {
-            alert('Iltimos, miqdorni kiriting');
+            alert('Please enter the quantity');
             return;
         }
 
         // Для лимитных ордеров проверяем limitPrice
         if (orderType === 'limit' && (!limitPrice || parseFloat(limitPrice) <= 0)) {
-            alert('Iltimos, limit narxini kiriting');
+            alert('Please enter the limit price.');
             return;
         }
 
@@ -90,7 +90,7 @@ const TradingControl = () => {
 
                 const result = await openPosition(positionData).unwrap();
                 console.log(`${type} market position opened:`, result);
-                alert(`Market pozitsiya muvaffaqiyatli ochildi!`);
+                alert(`The market position was successfully opened!`);
                 
             } else {
                 // LIMIT ORDER
@@ -100,7 +100,7 @@ const TradingControl = () => {
                     side: type === 'Long' ? 1 : 2, // 1 для Buy, 2 для Sell
                     limitPrice: parseFloat(limitPrice),
                     amount: parseFloat(amount),
-                    margin: parseFloat(amount) / leverage, // Рассчитываем маржу
+                    margin: parseFloat(amount) / leverage,
                     leverage: leverage,
                     stopLoss: null,
                     takeProfit: null
@@ -108,7 +108,7 @@ const TradingControl = () => {
 
                 const result = await openLimitOrder(limitOrderData).unwrap();
                 console.log(`${type} limit order created:`, result);
-                alert(`Limit order muvaffaqiyatli yaratildi!`);
+                alert(`Limit order created successfully!`);
             }
             
             setAmount('');
@@ -117,8 +117,8 @@ const TradingControl = () => {
         } catch (error) {
             console.error('Trade error:', error);
             
-            const errorMessage = error.data?.detail || error.message || 'Noma\'lum xatolik';
-            alert(`Xatolik: ${errorMessage}`);
+            const errorMessage = error.data?.detail || error.message || 'Unknown error occurred';
+            alert(`Error: ${errorMessage}`);
         }
     };
 
@@ -130,7 +130,7 @@ const TradingControl = () => {
     return (
         <div className={styles.tradingControlsSection}>
             <div className={styles.controlsHeader}>
-                <h3>⚡ Savdo</h3>
+                <h3>⚡ Trade</h3>
             </div>
     
             {/* Order Type Selector */}
@@ -232,7 +232,7 @@ const TradingControl = () => {
                 >
                     <span className={styles.btnIcon}>📈</span>
                     <span>
-                        {isOpening ? 'Yuklanmoqda...' : 'Long / Sotib olish'}
+                        {isOpening ? 'Loading...' : 'Long / Buy'}
                     </span>
                 </button>
                 <button 
@@ -242,7 +242,7 @@ const TradingControl = () => {
                 >
                     <span className={styles.btnIcon}>📉</span>
                     <span>
-                        {isOpening ? 'Yuklanmoqda...' : 'Short / Sotish'}
+                        {isOpening ? 'Loading...' : 'Short / Sell'}
                     </span>
                 </button>
             </div>
@@ -254,7 +254,7 @@ const TradingControl = () => {
                     <span>{(amount / leverage || 0).toFixed(2)} USDT</span>
                 </div>
                 <div className={styles.marginRow}>
-                    <span>Pozitsiya hajmi:</span>
+                    <span>Position size:</span>
                     <span>{(amount * leverage || 0).toFixed(2)} USDT</span>
                 </div>
                 <div className={styles.marginRow}>
@@ -267,7 +267,7 @@ const TradingControl = () => {
     
             {/* Risk Warning */}
             <div className={styles.riskWarning}>
-                ⚠️ Yuqori leverage xavfli! Ehtiyot bo'ling.
+                ⚠️ High leverage is risky! Be careful.
             </div>
         </div>
     );

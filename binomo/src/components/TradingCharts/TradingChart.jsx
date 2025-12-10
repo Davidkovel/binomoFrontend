@@ -100,12 +100,12 @@ export default function TradingChart() {
         >
           {!isScriptLoaded && (
             <div className="chart-loading">
-              TradingView grafigi yuklanmoqda...
+              TradingView chart is loading...
             </div>
           )}
         </div>
         <div className="chart-footer">
-          Grafik TradingView tomonidan ta’minlangan
+          Chart provided by TradingView
         </div>
       </div>
     </>

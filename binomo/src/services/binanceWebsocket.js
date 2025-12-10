@@ -23,7 +23,7 @@ class BinanceWebSocketService {
             
             if (data.data) {
                 const symbol = data.data.s; // "BTCUSDT"
-                const price = parseFloat(data.data.c); // Текущая цена
+                const price = parseFloat(data.data.c); // CUrrent price
                 
                 this.subscribers.forEach(callback => {
                     callback(symbol, price);

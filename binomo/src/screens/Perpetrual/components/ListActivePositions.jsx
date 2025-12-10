@@ -68,7 +68,7 @@ const ListActivePositions = () => {
   }, [positions, livePrices]);
 
   const handleClosePosition = async (positionId, symbol) => {
-    if (!confirm(`Haqiqatan ham ${symbol} pozitsiyasini yopmoqchimisiz?`)) {
+    if (!confirm(`Are you really sure you want to close the ${symbol} position?`)) {
       return;
     }
 
@@ -82,12 +82,12 @@ const ListActivePositions = () => {
       }).unwrap();
       
       console.log('Position closed successfully:', result);
-      alert('Pozitsiya muvaffaqiyatli yopildi!');
+      alert('Position closed successfully!');
       
     } catch (error) {
       console.error('Failed to close position:', error);
-      const errorMessage = error.data?.detail || error.message || 'Yopishda xatolik';
-      alert(`Xatolik: ${errorMessage}`);
+      const errorMessage = error.data?.detail || error.message || 'Error occured';
+      alert(`Error: ${errorMessage}`);
     }
   };
 
@@ -125,7 +125,7 @@ const ListActivePositions = () => {
     return (
       <div className={styles.loadingContainer}>
         <div className={styles.spinner}></div>
-        <p>Pozitsiyalar yuklanmoqda...</p>
+        <p>Positions are loading...</p>
       </div>
     );
   }
@@ -133,9 +133,9 @@ const ListActivePositions = () => {
   if (error) {
     return (
       <div className={styles.errorContainer}>
-        <p>Xatolik yuz berdi: {error.data?.detail || error.message}</p>
+        <p>An error occurred: {error.data?.detail || error.message}</p>
         <button onClick={refetch} className={styles.retryButton}>
-          Qayta urinish
+          Retry
         </button>
       </div>
     );
@@ -145,9 +145,9 @@ const ListActivePositions = () => {
     return (
       <div className={styles.emptyState}>
         <div className={styles.emptyIcon}>📊</div>
-        <p>Sizda hozircha ochiq pozitsiyalar yo'q</p>
+        <p>You currently have no open positions.</p>
         <p className={styles.emptySubtext}>
-          Savdo boshlash uchun yuqoridagi Long yoki Short tugmasini bosing
+          Click the Long or Short button above to start trading.
         </p>
       </div>
     );
@@ -156,7 +156,7 @@ const ListActivePositions = () => {
   return (
     <div className={styles.positionsContainer}>
       <div className={styles.positionsHeader}>
-        <h3>Faol Pozitsiyalar</h3>
+        <h3>Active Positions</h3>
         <div className={styles.headerInfo}>
           <span className={styles.positionsCount}>{positions.length} ta</span>
         </div>
@@ -196,11 +196,11 @@ const ListActivePositions = () => {
               <div className={styles.positionBody}>
                 <div className={styles.priceInfo}>
                   <div className={styles.priceRow}>
-                    <span>Kirish narxi:</span>
+                    <span>Admission price:</span>
                     <span>${formatPrice(position.entryPrice)}</span>
                   </div>
                   <div className={styles.priceRow}>
-                    <span>Joriy narx:</span>
+                    <span>Current price:</span>
                     <span className={`${styles.currentPrice} ${isProfit ? styles.profit : styles.loss}`}>
                       ${formatPrice(currentPrice)}
                     </span>
@@ -213,7 +213,7 @@ const ListActivePositions = () => {
 
                 <div className={styles.amountInfo}>
                   <div className={styles.amountRow}>
-                    <span>Miqdor:</span>
+                    <span>Quantity:</span>
                     <span>{formatPrice(position.amount)}</span>
                   </div>
                   <div className={styles.amountRow}>

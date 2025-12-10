@@ -38,11 +38,9 @@ const Header = () => {
     const token = localStorage.getItem('access_token');
     if (token) {
       setIsAuthenticated(true);
-      // Данные пользователя автоматически загрузятся через useMeQuery
     }
   }, [setIsAuthenticated]);
 
-  // Обновляем данные пользователя когда приходят с бекенда
   useEffect(() => {
     if (userData) {
       console.log(userData);
@@ -83,7 +81,7 @@ const Header = () => {
   }
 
   const handleDepositClick = () => {
-    navigate('/balance'); // Переход на страницу баланса
+    navigate('/balance');
   };
 
   const handleConnectWallet = async () => {

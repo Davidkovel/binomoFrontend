@@ -11,10 +11,8 @@ export default function Login() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   
-  // Получаем состояние из Redux - isLoading теперь из auth slice
   const { error, isLoading } = useSelector((state) => state.auth);
   
-  // useLoginMutation - хук для выполнения login запроса
   const [login, { isLoading: isLoginLoading }] = useLoginMutation();
 
   const [formData, setFormData] = useState({
@@ -27,7 +25,7 @@ export default function Login() {
       ...formData,
       [e.target.name]: e.target.value
     });
-    dispatch(clearError()); // Очищаем ошибку через dispatch
+    dispatch(clearError());
   };
 
   const handleSubmit = async (e) => {
@@ -35,43 +33,38 @@ export default function Login() {
     dispatch(clearError());
 
     try {
-      // Вызов API - login mutation
       const result = await login(formData).unwrap();
       
-      // Если успешно
       localStorage.setItem('access_token', result.accessToken);
       if (result.refreshToken) {
         localStorage.setItem('refresh_token', result.refreshToken);
       }
-      // Для login у нас нет имени в форме, можно получить из ответа или оставить пустым
       dispatch(setUser({ 
-        name: result.name || 'User', // если бэкенд возвращает имя
+        name: result.name || 'User',
         email: formData.email 
       }));
       
       navigate('/trading');
       
     } catch (error) {
-      console.log('Full error object:', error);
-      
       if (error.data) {
         const data = error.data;
         
         if (Array.isArray(data) && data.length > 0) {
           if (data[0].loc && data[0].loc.includes('password')) {
-            dispatch(setError('Noto‘g‘ri email yoki parol'));
+            dispatch(setError('Incorrect email or password'));
           } else {
-            dispatch(setError(data[0].msg || 'Maʼlumotlarni tekshirishda xatolik'));
+            dispatch(setError(data[0].msg || 'Error in data verification'));
           }
         } else if (data.detail) {
           dispatch(setError(data.detail));
         } else if (data.message) {
           dispatch(setError(data.message));
         } else {
-          dispatch(setError('Noto‘g‘ri email yoki parol'));
+          dispatch(setError('Incorrect email or password'));
         }
       } else {
-        dispatch(setError('Serverga ulanish muvaffaqiyatsiz. Backend 8080-portda ishlayotganiga ishonch hosil qiling.'));
+        dispatch(setError('500 Internal Server Error'));
       }
     }
   };
@@ -92,9 +85,9 @@ export default function Login() {
           <div className="logo-container">
             <TrendingUp size={40} className="logo-icon-auth" />
           </div>
-          <h1 className="auth-title">Qaytganingiz bilan tabriklaymiz</h1>
+          <h1 className="auth-title">Congratulations on your return.</h1>
           <p className="auth-subtitle">
-            Savdo hisobingizga kirish uchun tizimga kiring
+            Log in to access your trading account.
           </p>
         </div>
 
@@ -109,7 +102,7 @@ export default function Login() {
           <div className="form-group">
             <label className="form-label">
               <Mail size={18} />
-              Email manzil
+              Email address
             </label>
             <input
               type="email"
@@ -117,7 +110,7 @@ export default function Login() {
               value={formData.email}
               onChange={handleInputChange}
               className="form-input-auth"
-              placeholder="Email manzilingizni kiriting"
+              placeholder="Enter your email address"
               required
             />
           </div>
@@ -125,7 +118,7 @@ export default function Login() {
           <div className="form-group">
             <label className="form-label">
               <Lock size={18} />
-              Parol
+              Password
             </label>
             <input
               type="password"
@@ -133,7 +126,7 @@ export default function Login() {
               value={formData.password}
               onChange={handleInputChange}
               className="form-input-auth"
-              placeholder="Parolingizni kiriting"
+              placeholder="Enter your password"
               required
             />
           </div>
@@ -144,18 +137,18 @@ export default function Login() {
             disabled={loading}
           >
             {loading ? (
-              <span className="loading-spinner">Kirilmoqda...</span>
+              <span className="loading-spinner">Being entered...</span>
             ) : (
-              'Kirish'
+              'Introduction'
             )}
           </button>
         </form>
 
         <div className="auth-toggle">
           <p>
-            Hisobingiz yo'qmi?
+            Don't have an account?
             <a href="/register" className="toggle-link">
-              Ro'yxatdan o'tish
+              Register
             </a>
           </p>
         </div>

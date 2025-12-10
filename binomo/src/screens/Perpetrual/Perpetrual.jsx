@@ -93,7 +93,7 @@ export default function PerpetrualTradingPlatform() {
     return (
       <div className={styles.loadingContainer}>
         <div className={styles.loadingSpinner}></div>
-        <p>Проверка авторизации...</p>
+        <p>Authorization check...</p>
       </div>
     );
   }
@@ -102,13 +102,13 @@ export default function PerpetrualTradingPlatform() {
     return (
       <div className={styles.authRequired}>
         <div className={styles.authMessage}>
-          <h2>Требуется авторизация</h2>
-          <p>Для доступа к торговой платформе необходимо войти в систему</p>
+          <h2>Authorization is required</h2>
+          <p>To access the trading platform, you must log in to the system.</p>
           <button 
             onClick={() => navigate('/login')}
             className={styles.loginButton}
           >
-            Войти
+            Log in
           </button>
         </div>
       </div>

@@ -9,7 +9,6 @@ const OpenOrdersTab = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 20;
 
-  // Используем RTK Query хуки
   const { 
     data: ordersData = [], 
     isLoading, 
@@ -22,12 +21,12 @@ const OpenOrdersTab = () => {
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (!document.hidden) {
-        refetch(); // Обновляем когда пользователь вернулся на вкладку
+        refetch();
       }
     };
 
     const interval = setInterval(() => {
-      if (!document.hidden) { // Только если вкладка активна
+      if (!document.hidden) {
         refetch();
       }
     }, 10000);
@@ -40,7 +39,6 @@ const OpenOrdersTab = () => {
     };
   }, [refetch]);
 
-  // Функция отмены ордера
   const handleCancelOrder = async (orderId) => {
     try {
       await cancelLimitOrder(orderId).unwrap();
@@ -60,7 +58,6 @@ const OpenOrdersTab = () => {
     });
   };
 
-  // Функция для получения статуса ордера
   const getOrderStatus = (order) => {
     switch (order.status) {
       case 'Pending':
@@ -112,9 +109,9 @@ const OpenOrdersTab = () => {
       <div className={styles.container}>
         <div className={styles.emptyState}>
           <div className={styles.emptyIcon}>📝</div>
-          <p>Ochiq orderlar yo'q</p>
+          <p>No open orders</p>
           <p className={styles.emptySubtext}>
-            Limit order yaratish uchun trading sahifasiga o'ting
+            Go to the trading page to create a limit order.
           </p>
         </div>
       </div>
@@ -128,9 +125,9 @@ const OpenOrdersTab = () => {
       <div className={styles.container}>
         <div className={styles.emptyState}>
           <div className={styles.emptyIcon}>✅</div>
-          <p>Hozircha ochiq orderlar yo'q</p>
+          <p>There are currently no open orders.</p>
           <p className={styles.emptySubtext}>
-            Barcha orderlar bajarildi yoki bekor qilindi
+            All orders have been fulfilled or canceled.
           </p>
         </div>
       </div>
@@ -204,10 +201,6 @@ const OpenOrdersTab = () => {
               );
             })}
           </div>
-        </div>
-
-        <div className={styles.tableFooter}>
-          <p>Avtomatik yangilanadi har 5 soniyada</p>
         </div>
       </div>
     </div>

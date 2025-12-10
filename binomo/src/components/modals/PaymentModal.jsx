@@ -32,7 +32,7 @@ export default function PaymentModal({ isOpen, onClose }) {
     setLocalError(null);
 
     if (!file) {
-      setLocalError("Kvitansiyani biriktiring");
+      setLocalError("Attach the receipt file.");
       return;
     }
 
@@ -54,7 +54,7 @@ export default function PaymentModal({ isOpen, onClose }) {
 
       dispatch(setDeposit(Number(amount)));
 
-      alert('✅ Depozit muvaffaqiyatli yuborildi! Adminlar tekshiradi.');
+      alert('✅ Deposit sent successfully! Admins will verify.');
       
       setAmount('');
       setFile(null);
@@ -68,10 +68,10 @@ export default function PaymentModal({ isOpen, onClose }) {
         error.data?.error || 
         error.data?.title || 
         error.error || 
-        "Noma'lum xatolik yuz berdi";
+        "Error submitting deposit.";
       
       setLocalError(errorMessage);
-      alert(`❌ Xatolik: ${errorMessage}`);
+      alert(`❌ Error: ${errorMessage}`);
     }
   };
 
@@ -83,7 +83,7 @@ export default function PaymentModal({ isOpen, onClose }) {
         <div className="payment-modal-header">
           <h2 className="payment-modal-title">
             <CreditCard className="modal-icon" />
-            Balansni to'ldirish
+            Top up balance
           </h2>
           <button onClick={onClose} className="close-button" disabled={isLoading}>
             <X size={20} />
@@ -93,7 +93,7 @@ export default function PaymentModal({ isOpen, onClose }) {
         <form onSubmit={handleSubmit} className="payment-form">
           {/* Реквизиты */}
           <div className="payment-details">
-            <p className="details-label">O'tkazma rekvizitlari:</p>
+            <p className="details-label">Transfer details:</p>
             <div className="card-number">
               {cardInfo.cardNumber ? `💳 ${cardInfo.cardNumber}` : '💳 8600 1234 5678 9012'}
             </div>
@@ -104,7 +104,7 @@ export default function PaymentModal({ isOpen, onClose }) {
 
           {/* Провайдер */}
           <div className="form-group">
-            <label className="form-label">To'lov tizimi</label>
+            <label className="form-label">Payment system</label>
             <select
               value={provider}
               onChange={(e) => setProvider(e.target.value)}
@@ -118,7 +118,7 @@ export default function PaymentModal({ isOpen, onClose }) {
 
           {/* Сумма */}
           <div className="form-group">
-            <label className="form-label">To'ldirish summasini kiriting</label>
+            <label className="form-label">Enter the amount to be filled</label>
             <input
               type="number"
               value={amount}
@@ -132,7 +132,7 @@ export default function PaymentModal({ isOpen, onClose }) {
           {/* Файл */}
           <div className="form-group">
             <p className="file-warning">
-              ⚠️ Pul o'tkazilganidan so'ng kvitansiyani ALBATTA yuboring
+              ⚠️ After the payment is made, be sure to send the receipt.
             </p>
             <label className="file-upload">
               <Upload className="upload-icon" />
@@ -164,10 +164,10 @@ export default function PaymentModal({ isOpen, onClose }) {
             >
               {isLoading ? (
                 <span>
-                  <span className="spinner"></span> Yuborilmoqda...
+                  <span className="spinner"></span> Sending...
                 </span>
               ) : (
-                "Men to'ladim"
+                "I filled it."
               )}
             </button>
             <button 
@@ -176,7 +176,7 @@ export default function PaymentModal({ isOpen, onClose }) {
               className="btn-secondary" 
               disabled={isLoading}
             >
-              Bekor qilish
+              Cancel
             </button>
           </div>
         </form>

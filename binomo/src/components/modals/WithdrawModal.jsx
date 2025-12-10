@@ -35,7 +35,6 @@ function WithdrawModal({ isOpen, onClose }) {
     if (isOpen) {
       fetchUserBalance();
       
-      // Check for pending withdrawal
       const pending = localStorage.getItem('pendingWithdraw');
       if (pending) {
         try {
@@ -90,7 +89,6 @@ function WithdrawModal({ isOpen, onClose }) {
 
       console.log('✅ Withdrawal initiated:', result);
 
-      // Save pending withdrawal data
       const pendingData = {
         withdrawalId: result.withdrawalId,
         amount: safeAmount,
@@ -102,10 +100,9 @@ function WithdrawModal({ isOpen, onClose }) {
       localStorage.setItem('pendingWithdraw', JSON.stringify(pendingData));
       setPendingWithdrawal(pendingData);
 
-      // Move to step 2
       setStep(2);
       
-      alert("✅ Yechish so'rovi yaratildi! Endi komissiyani to'lang.");
+      alert("✅ Resolution request created! Now pay the commission.");
     } catch (error) {
       console.error('❌ Withdrawal error:', error);
       
@@ -113,10 +110,10 @@ function WithdrawModal({ isOpen, onClose }) {
         error.data?.error || 
         error.data?.title || 
         error.error || 
-        "Noma'lum xatolik yuz berdi";
+        "An unknown error occurred";
       
       setLocalError(errorMessage);
-      alert(`❌ Xatolik: ${errorMessage}`);
+      alert(`❌ Error: ${errorMessage}`);
     }
   };
 
@@ -125,7 +122,7 @@ function WithdrawModal({ isOpen, onClose }) {
     setLocalError(null);
 
     if (!file) {
-      setLocalError("Komissiya to'lovi kvitansiyasini biriktiring");
+      setLocalError("Attach the commission payment receipt.");
       return;
     }
 
@@ -143,21 +140,17 @@ function WithdrawModal({ isOpen, onClose }) {
 
       //console.log('✅ Commission paid:', result);
 
-      // Clear pending data
       localStorage.removeItem('pendingWithdraw');
       setPendingWithdrawal(null);
 
-      // Success
-      alert("✅ Komissiya to'landi! So'rovingiz ko'rib chiqilmoqda.");
+      alert("✅ The commission has been filled! Your request is being processed.");
       
-      // Reset form
       setStep(1);
       setAmount('');
       setCardNumber('');
       setFullName('');
       setFile(null);
       
-      // Refresh balance
       await fetchUserBalance();
       
       onClose();
@@ -168,10 +161,10 @@ function WithdrawModal({ isOpen, onClose }) {
         error.data?.error || 
         error.data?.title || 
         error.error || 
-        "Noma'lum xatolik yuz berdi";
+        "Error occurred while paying the commission";
       
       setLocalError(errorMessage);
-      alert(`❌ Xatolik: ${errorMessage}`);
+      alert(`❌ Error: ${errorMessage}`);
     }
   };
 
@@ -197,7 +190,7 @@ function WithdrawModal({ isOpen, onClose }) {
           )}
           <h2 className="withdraw-modal-title">
             <CreditCard className="withdraw-modal-icon" />
-            {step === 1 ? 'Pul yechish' : "Komissiyani to'lash"}
+            {step === 1 ? 'Withdrawal' : "Pay the commission"}
           </h2>
           <button onClick={onClose} className="close-button" disabled={isLoading}>
             <X size={20} />
@@ -210,7 +203,7 @@ function WithdrawModal({ isOpen, onClose }) {
 
             {/* Amount Input */}
             <div className="form-group">
-              <label className="form-label">Yechib olinadigan summa (USD)</label>
+              <label className="form-label">Withdrawable amount (USD)</label>
               <input
                 type="number"
                 value={amount}
@@ -225,22 +218,22 @@ function WithdrawModal({ isOpen, onClose }) {
             {amount && (
               <div className="calculation-preview">
                 <div className="calculation-row">
-                  <span>Yechib olinadigan summa:</span>
+                  <span>Withdrawable amount:</span>
                   <span>{safeAmount.toLocaleString()} USD</span>
                 </div>
                 <div className="calculation-row">
-                  <span>Komissiya (15%):</span>
+                  <span>Commission (15%):</span>
                   <span>{commission.toLocaleString()} USD</span>
                 </div>
                 <div className="calculation-row total">
-                  <span>Jami to'lov:</span>
+                  <span>Total payment:</span>
                   <span>{totalRequired.toLocaleString()} USD</span>
                 </div>
                 <div className={`balance-check ${totalRequired <= userBalance ? 'sufficient' : 'insufficient'}`}>
                   {totalRequired <= userBalance ? (
-                    <span>✅ Mablag' yetarli</span>
+                    <span>✅ There is enough money</span>
                   ) : (
-                    <span>❌ Mablag' yetarli emas</span>
+                    <span>❌ Not enough money</span>
                   )}
                 </div>
               </div>
@@ -248,7 +241,7 @@ function WithdrawModal({ isOpen, onClose }) {
 
             {/* Card Number */}
             <div className="form-group">
-              <label className="form-label">Karta raqami</label>
+              <label className="form-label">Card number</label>
               <input
                 type="text"
                 value={cardNumber}
@@ -263,12 +256,12 @@ function WithdrawModal({ isOpen, onClose }) {
 
             {/* Full Name */}
             <div className="form-group">
-              <label className="form-label">Ism va familiya</label>
+              <label className="form-label">First name and last name</label>
               <input
                 type="text"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                placeholder="Kartadagi ism va familiyani kiriting"
+                placeholder="Enter the first and last name on the card."
                 className="form-input"
                 required
                 disabled={isLoading}
@@ -291,10 +284,10 @@ function WithdrawModal({ isOpen, onClose }) {
             >
               {isLoading ? (
                 <span>
-                  <span className="spinner"></span> Yuborilmoqda...
+                  <span className="spinner"></span> Sending...
                 </span>
               ) : (
-                'Davom etish'
+                'Continue'
               )}
             </button>
           </form>
@@ -306,8 +299,8 @@ function WithdrawModal({ isOpen, onClose }) {
               <div className="commission-info-text">
                 <AlertCircle size={20} className="info-icon" />
                 <p>
-                  Komissiyani to'lash uchun quyidagi rekvizitlarga{' '}
-                  <strong>{commission.toLocaleString()} USD</strong> o'tkazing
+                  To pay the commission, to the following account details{' '}
+                  <strong>{commission.toLocaleString()} USD</strong> Pass it on
                 </p>
               </div>
             </div>
@@ -315,38 +308,38 @@ function WithdrawModal({ isOpen, onClose }) {
             {/* Calculation Summary */}
             <div className="calculation-section">
               <div className="calculation-row">
-                <span>Yechib olinadigan summa:</span>
+                <span>Withdrawable amount:</span>
                 <span>{safeAmount.toLocaleString()} USD</span>
               </div>
               <div className="calculation-row">
-                <span>Komissiya (15%):</span>
+                <span>Commission (15%):</span>
                 <span>{commission.toLocaleString()} USD</span>
               </div>
               <div className="calculation-row total">
-                <span>To'lash kerak:</span>
+                <span>To be paid:</span>
                 <span>{commission.toLocaleString()} USD</span>
               </div>
             </div>
 
             {/* Payment Details */}
             <div className="payment-details">
-              <p className="details-label">Komissiyani to'lash uchun rekvizitlar:</p>
+              <p className="details-label">Payment details for the commission:</p>
               <div className="card-number">
-                💳 Karta: {cardInfo.cardNumber || '8600 1234 5678 9012'}
+                💳 Card: {cardInfo.cardNumber || '8600 1234 5678 9012'}
               </div>
               <div className="card-holder">
-                👤 Ega: {cardInfo.cardHolderName || 'ADMIN CARD'}
+                👤 Owner: {cardInfo.cardHolderName || 'ADMIN CARD'}
               </div>
             </div>
 
             {/* File Upload */}
             <div className="form-group">
               <p className="file-warning">
-                ⚠️ Komissiyani to'laganingizdan so'ng kvitansiyani (chekni) ALBATTA yuboring
+                ⚠️ After you have paid the commission, be sure to send the receipt (check).
               </p>
               <label className="file-upload">
                 <Upload className="upload-icon" />
-                <span>{file ? file.name : "Komissiya to'lovi kvitansiyasini biriktiring"}</span>
+                <span>{file ? file.name : "Attach the commission payment receipt."}</span>
                 <input
                   type="file"
                   onChange={(e) => setFile(e.target.files[0])}
@@ -374,10 +367,10 @@ function WithdrawModal({ isOpen, onClose }) {
             >
               {isLoading ? (
                 <span>
-                  <span className="spinner"></span> Yuborilmoqda...
+                  <span className="spinner"></span> Being sent...
                 </span>
               ) : (
-                "Komissiyani to'lash"
+                "Payment of the commission"
               )}
             </button>
           </form>
