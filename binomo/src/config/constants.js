@@ -1,4 +1,4 @@
-export const CONFIG_API_BASE_URL ='http://localhost:5207';
+export const CONFIG_API_BASE_URL ='https://185b190c1df5.ngrok-free.app';
 
 // http://localhost:5207/swagger/index.html
 // 'https://finovauz.com'; 
