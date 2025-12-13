@@ -2,4 +2,6 @@
 
 ## Trading Platform Frontend
 
+`Backend`: https://github.com/Davidkovel/BackendBinomo 
+
 `Presentation`: https://www.canva.com/design/DAG6wrWaVaE/GuHTv6e24oqratcW0ZzkcQ/edit?ui=e30
